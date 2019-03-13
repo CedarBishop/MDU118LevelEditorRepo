@@ -1,0 +1,26 @@
+﻿  app.cpp
+c:\users\cbishop5\documents\visual studio 2017\solution\mdu118\mdu118\leveleditor\app.cpp(27): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\cbishop5\documents\visual studio 2017\solution\mdu118\mdu118\leveleditor\app.cpp(30): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\cbishop5\documents\visual studio 2017\solution\mdu118\mdu118\leveleditor\app.cpp(110): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+          and
+          [
+              T=float
+          ]
+c:\users\cbishop5\documents\visual studio 2017\solution\mdu118\mdu118\leveleditor\app.cpp(128): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+          and
+          [
+              T=float
+          ]
+  LevelEditor.vcxproj -> C:\Users\cbishop5\Documents\Visual Studio 2017\Solution\MDU118\MDU118\x64\Debug\LevelEditor.exe
