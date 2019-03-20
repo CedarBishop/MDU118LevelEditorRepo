@@ -18,18 +18,13 @@ App::~App()
 // Initialise memeber variables here
 bool App::Init()
 {	
-	
+	srand(time(NULL));
 	InitializeCircles();	
 	InitializePaddle();
+	InitializeBricks();
 	backgroundTexture.loadFromFile("Images/Brick.png");
 	backgroundSprite.setTexture(backgroundTexture);
-	backgroundSprite.setScale(7, 6);
-	srand(time(NULL));
-	sign1 = 2 * (rand() % 2) - 1;
-	sign2 = 2 * (rand() % 2) - 1;
-	speed = Vector2f(sign1 * (rand() % 201 + 200), sign2 * (rand() % 201 + 200));	
-
-	paddleVelocity = 1000.0f;
+	backgroundSprite.setScale(7, 6);	
 	
 	return true;
 }
@@ -56,11 +51,14 @@ void App::Draw()
 	// Sprite Drawing Starts here 
 
 	window.draw(backgroundSprite);
-	window.draw(ballSprite);
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{
-		window.draw(circle[i]);
+		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		{
+			window.draw(bricks[i][j]);
+		}
 	}
+	window.draw(ball);
 	window.draw(paddle);
 	
 	
@@ -102,21 +100,17 @@ void App::Run()
 void App::InitializeCircles()
 {
 	radius = window.getSize().x * 0.02f;
-	ballTexture.loadFromFile("Images/TennisBall.png");
+	ballTexture.loadFromFile("Images/TennisBall.png");	
+
+	ball.setRadius(radius);
+	ball.setPosition(Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+	ball.setOrigin(Vector2f(radius, radius));
+	ball.setTexture(&ballTexture);		
+
+	sign = 2 * (rand() % 2) - 1;
+	sign2 = 2 * (rand() % 2) - 1;
+	speed = Vector2f(sign * (rand() % 201 + 300), sign2 * (rand() % 201 + 300));
 	
-	for (int i = 0; i < N; i++)
-	{
-		circle[i].setRadius(radius);
-		circle[i].setPosition(Vector2f(window.getSize().x / 2, window.getSize().y / 2));
-		circle[i].setOrigin(Vector2f(radius, radius));
-		circle[i].setTexture(&ballTexture);
-	}	
-
-	xSpeed[0] = 500;
-	ySpeed[0] = 500;
-	xSpeed[1] = -500;
-	ySpeed[1] = -500;
-
 	//ballSprite.setTexture(ballTexture);
 }
 
@@ -128,67 +122,85 @@ void App::InitializePaddle()
 	paddle.setPosition(Vector2f(window.getSize().x / 2, window.getSize().y * 0.85f));
 	paddleTexture.loadFromFile("Images/PaddleTexture.jpg");
 	paddle.setTexture(&paddleTexture);
+	paddleVelocity = 1000.0f;
 
 }
 
-void App::CircleMovement()
+void App::InitializeBricks()
 {
-	for (int i = 0; i < N; i++)
+	sizeOfBricks = Vector2f(window.getSize().x / NUM_OF_BRICKS_ROWS, (window.getSize().y / 2) / NUM_OF_BRICK_COLUMNS);
+	
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{
-		circle[i].move(xSpeed[i] * deltaTime, ySpeed[i] * deltaTime);
-
-		// Border Collision Right
-		if (circle[i].getPosition().x > (window.getSize().x - radius))
+	
+		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			circle[i].setPosition(window.getSize().x - radius, circle[i].getPosition().y);
-			xSpeed[i] *= -1;
+			bricks[i][j].setSize(sizeOfBricks);		
+			bricks[i][j].setPosition((window.getSize().x / NUM_OF_BRICK_COLUMNS) * j, ((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);		
+			bricks[i][j].setOutlineThickness(5);
+			bricks[i][j].setOutlineColor(Color::Black);
+			bricks[i][j].setFillColor(Color::Blue);
 		}
-
-		// Border Collision Left
-		if (circle[i].getPosition().x < radius)
-		{
-			circle[i].setPosition(radius, circle[i].getPosition().y);
-			xSpeed[i] *= -1;
-		}
-
-		//Border Collision Bottom
-		if (circle[i].getPosition().y > (window.getSize().y - radius))
-		{
-			circle[i].setPosition(circle[i].getPosition().x, window.getSize().y - radius);
-			ySpeed[i] *= -1;
-		}
-
-		// Border Collision Top
-		if (circle[i].getPosition().y < radius)
-		{
-			circle[i].setPosition(circle[i].getPosition().x, radius);
-			ySpeed[i] *= -1;
-		}
-
-		// Collision with paddle
-
-		if (circle[i].getGlobalBounds().intersects(paddle.getGlobalBounds()))
-		{
-			if ((circle[i].getPosition().x + radius > paddle.getSize().x - (paddleSize.x / 2)) && (circle[i].getPosition().x + radius < paddle.getSize().x - (paddleSize.x / 1.9f)) || (circle[i].getPosition().x - radius < paddle.getSize().x + (paddleSize.x / 2)) && (circle[i].getPosition().x - radius > paddle.getSize().x + (paddleSize.x / 1.9f)))
-			{
-				xSpeed[i] *= -1;
-			}
-			else
-			{
-				ySpeed[i] *= -1;
-			}
-		}
-		
-
-		/*if ((circle[i].getPosition().y + radius > paddle.getPosition().y - paddleSize.y 
-			&& circle[i].getPosition().y + radius < paddle.getPosition().y + paddleSize.y)
-			&& (circle[i].getPosition().x > paddle.getPosition().x - paddleSize.x
-				&& circle[i].getPosition().x < paddle.getPosition().x + paddleSize.x))
-		{
-			ySpeed[i] *= -1;
-		}*/
-		
 	}
+}
+
+void App::CircleMovement()
+{	
+	
+	ball.move(speed * deltaTime);
+	// Border Collision Right
+	if (ball.getPosition().x > (window.getSize().x - radius))
+	{
+		ball.setPosition(window.getSize().x - radius, ball.getPosition().y);		
+		speed.x *= -1;
+	}
+
+	// Border Collision Left
+	if (ball.getPosition().x < radius)
+	{
+		ball.setPosition(radius, ball.getPosition().y);		
+		speed.x *= -1;
+	}
+
+	//Border Collision Bottom
+	if (ball.getPosition().y > (window.getSize().y - radius))
+	{
+		ball.setPosition(ball.getPosition().x, window.getSize().y - radius);		
+		speed.y *= -1;
+	}
+
+	// Border Collision Top
+	if (ball.getPosition().y < radius)
+	{
+		ball.setPosition(ball.getPosition().x, radius);		
+		speed.y *= -1;
+	}
+
+	// Collision with paddle
+
+	if (ball.getGlobalBounds().intersects(paddle.getGlobalBounds()))
+	{
+		/*if ((ball.getPosition().x + radius > paddle.getSize().x - (paddleSize.x / 2)) && (ball.getPosition().x + radius < paddle.getSize().x - (paddleSize.x / 1.9f)) || (ball.getPosition().x - radius < paddle.getSize().x + (paddleSize.x / 2)) && (ball.getPosition().x - radius > paddle.getSize().x + (paddleSize.x / 1.9f)))
+		{			
+			speed.x *= -1;
+		}
+		else
+		{			
+			speed.y *= -1;
+		}*/
+		speed.y *= -1;
+	}
+		
+
+	/*if ((ball.getPosition().y + radius > paddle.getPosition().y - paddleSize.y 
+		&& ball.getPosition().y + radius < paddle.getPosition().y + paddleSize.y)
+		&& (ball.getPosition().x > paddle.getPosition().x - paddleSize.x
+			&& ball.getPosition().x < paddle.getPosition().x + paddleSize.x))
+	{
+		speed.y *= -1;
+	}*/
+		
+	
 }
 
 void App::PaddleMovement()
