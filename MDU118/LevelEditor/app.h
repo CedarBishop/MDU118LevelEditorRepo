@@ -2,8 +2,8 @@
 #include "SFML/Graphics.hpp"
 using namespace sf;
 
-const int NUM_OF_BRICKS_ROWS = 10;
-const int NUM_OF_BRICK_COLUMNS = 10;
+const int NUM_OF_BRICKS_ROWS = 5;
+const int NUM_OF_BRICK_COLUMNS = 5;
 class App
 {
 	//Game Logic variables
@@ -43,6 +43,7 @@ class App
 
 	RectangleShape bricks[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Vector2f sizeOfBricks;
+	bool collided[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 
 	// Methods
 
@@ -61,6 +62,8 @@ private:
 	void InitializeBricks();
 	void CircleMovement();
 	void PaddleMovement();
+	void PaddleCollision();
+	void BrickCollision();
 	
 	//
 };

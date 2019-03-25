@@ -37,14 +37,12 @@ void App::Update()
 	deltaTime = clock.restart().asSeconds();
 	
 	CircleMovement();
-
 	PaddleMovement();
-	
+	PaddleCollision();	
 }
 
 void App::Draw()
 {
-
 	window.clear();
 	window.setView(view);
 
@@ -55,12 +53,14 @@ void App::Draw()
 	{
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			window.draw(bricks[i][j]);
+			if (collided[i][j] == false)
+			{
+				window.draw(bricks[i][j]);
+			}			
 		}
 	}
 	window.draw(ball);
 	window.draw(paddle);
-	
 	
 	// Ends here
 	window.display();
@@ -116,9 +116,8 @@ void App::InitializeCircles()
 
 void App::InitializePaddle()
 {
-	paddleSize = Vector2f(0.1f * window.getSize().x, 0.01f * window.getSize().y);
+	paddleSize = Vector2f(0.1f * window.getSize().x, 0.05f * window.getSize().y);
 	paddle.setSize(paddleSize);
-	paddle.setOrigin(Vector2f(paddle.getSize().x / 2, paddle.getSize().x / 2));
 	paddle.setPosition(Vector2f(window.getSize().x / 2, window.getSize().y * 0.85f));
 	paddleTexture.loadFromFile("Images/PaddleTexture.jpg");
 	paddle.setTexture(&paddleTexture);
@@ -136,17 +135,18 @@ void App::InitializeBricks()
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
 			bricks[i][j].setSize(sizeOfBricks);		
-			bricks[i][j].setPosition((window.getSize().x / NUM_OF_BRICK_COLUMNS) * j, ((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);		
+
+			bricks[i][j].setPosition((float)(window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j, (float)((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);		
 			bricks[i][j].setOutlineThickness(5);
 			bricks[i][j].setOutlineColor(Color::Black);
 			bricks[i][j].setFillColor(Color::Blue);
+			collided[i][j] = false;
 		}
 	}
 }
 
 void App::CircleMovement()
-{	
-	
+{		
 	ball.move(speed * deltaTime);
 	// Border Collision Right
 	if (ball.getPosition().x > (window.getSize().x - radius))
@@ -174,33 +174,9 @@ void App::CircleMovement()
 	{
 		ball.setPosition(ball.getPosition().x, radius);		
 		speed.y *= -1;
-	}
+	}	
 
-	// Collision with paddle
-
-	if (ball.getGlobalBounds().intersects(paddle.getGlobalBounds()))
-	{
-		/*if ((ball.getPosition().x + radius > paddle.getSize().x - (paddleSize.x / 2)) && (ball.getPosition().x + radius < paddle.getSize().x - (paddleSize.x / 1.9f)) || (ball.getPosition().x - radius < paddle.getSize().x + (paddleSize.x / 2)) && (ball.getPosition().x - radius > paddle.getSize().x + (paddleSize.x / 1.9f)))
-		{			
-			speed.x *= -1;
-		}
-		else
-		{			
-			speed.y *= -1;
-		}*/
-		speed.y *= -1;
-	}
-		
-
-	/*if ((ball.getPosition().y + radius > paddle.getPosition().y - paddleSize.y 
-		&& ball.getPosition().y + radius < paddle.getPosition().y + paddleSize.y)
-		&& (ball.getPosition().x > paddle.getPosition().x - paddleSize.x
-			&& ball.getPosition().x < paddle.getPosition().x + paddleSize.x))
-	{
-		speed.y *= -1;
-	}*/
-		
-	
+	BrickCollision();
 }
 
 void App::PaddleMovement()
@@ -215,14 +191,85 @@ void App::PaddleMovement()
 	}
 
 	//Player Border Collision
-	if (paddle.getPosition().x > (window.getSize().x - paddleSize.x / 2)) //Right
+	if (paddle.getPosition().x > (window.getSize().x - paddleSize.x)) //Right
 	{
-		paddle.setPosition(window.getSize().x - paddleSize.x / 2, paddle.getPosition().y);
+		paddle.setPosition(window.getSize().x - paddleSize.x, paddle.getPosition().y);
 	}
-	if (paddle.getPosition().x < paddleSize.x / 2) // Left
+	if (paddle.getPosition().x < 0) // Left
 	{
-		paddle.setPosition(paddleSize.x / 2, paddle.getPosition().y);
+		paddle.setPosition(0, paddle.getPosition().y);
 	}
 }
+
+void App::PaddleCollision()
+{
+	if (ball.getGlobalBounds().intersects(paddle.getGlobalBounds()))
+	{
+		//left
+		if (ball.getPosition().x < paddle.getPosition().x)
+		{
+			speed.x *= -1;
+			ball.setPosition(paddle.getPosition().x - (radius + 1), ball.getPosition().y);
+		}
+		//right
+		else if (ball.getPosition().x > paddle.getPosition().x + paddleSize.x)
+		{
+			speed.x *= -1;
+			ball.setPosition((paddle.getPosition().x + paddleSize.x) + (radius + 1), ball.getPosition().y);
+		}
+		//top
+		else if (ball.getPosition().y < paddle.getPosition().y)
+		{
+			speed.y *= -1;
+			ball.setPosition(ball.getPosition().x, (paddle.getPosition().y) - (radius + 1));
+		}
+		//bottom
+		else if (ball.getPosition().y > paddle.getPosition().y + paddleSize.y)
+		{
+			speed.y *= -1;
+			ball.setPosition(ball.getPosition().x, (paddle.getPosition().y + paddleSize.y) + (radius + 1));
+		}
+	}
+}
+
+void App::BrickCollision()
+{
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	{
+		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; i++)
+		{
+			if (ball.getGlobalBounds().intersects(bricks[i][j].getGlobalBounds()))
+			{
+				//left
+				if (ball.getPosition().x < bricks[i][j].getPosition().x)
+				{
+					speed.x *= -1;
+					ball.setPosition(bricks[i][j].getPosition().x - (radius + 1), ball.getPosition().y);
+				}
+				//right
+				else if (ball.getPosition().x > bricks[i][j].getPosition().x + sizeOfBricks.x)
+				{
+					speed.x *= -1;
+					ball.setPosition((bricks[i][j].getPosition().x + sizeOfBricks.x) + (radius + 1), ball.getPosition().y);
+				}
+				//top
+				else if (ball.getPosition().y < bricks[i][j].getPosition().y)
+				{
+					speed.y *= -1;
+					ball.setPosition(ball.getPosition().x, (bricks[i][j].getPosition().y) - (radius + 1));
+				}
+				//bottom
+				else if (ball.getPosition().y > bricks[i][j].getPosition().y + sizeOfBricks.y)
+				{
+					speed.y *= -1;
+					ball.setPosition(ball.getPosition().x, (bricks[i][j].getPosition().y + sizeOfBricks.y) + (radius + 1));
+				}
+				collided[i][j] = true;
+			}
+		}
+	}
+	
+}
+
 
 
