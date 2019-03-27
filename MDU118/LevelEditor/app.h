@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 using namespace sf;
 
 const int NUM_OF_BRICKS_ROWS = 10;
@@ -36,6 +37,7 @@ class App
 	RectangleShape paddle;
 	Texture paddleTexture;
 	float paddleVelocity;
+	Vector2f paddleStartingPosition;
 	Vector2f paddleSize;
 	
 	//
@@ -48,6 +50,24 @@ class App
 	bool collided[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Texture brickTexture;
 
+	// Texts
+
+	Text instructionsText;
+	Font instructionsFont;
+
+	//
+
+	// SFX
+	SoundBuffer collisionBuffer;
+	Sound collisionSound;
+
+	/*SoundBuffer gameOverBuffer;
+	Sound gameOverSound;
+
+	SoundBuffer BGMBuffer;
+	Sound BGMSound;*/
+
+	//
 	// Methods
 
 public:
@@ -67,7 +87,10 @@ private:
 	void PaddleMovement();
 	void PaddleCollision();
 	void BrickCollision();
-	
+	void TestGameWin();
+	void ResetGame();
+	void InitializeText();
+	void InitializeSound();
 	//
 };
 

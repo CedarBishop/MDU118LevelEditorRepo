@@ -1,6 +1,6 @@
 ﻿  app.cpp
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(21): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(124): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(21): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(134): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -9,12 +9,12 @@ c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.
           [
               T=float
           ]
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(129): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(139): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(138): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(158): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
@@ -23,23 +23,18 @@ c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.
           [
               T=float
           ]
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(147): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(184): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=unsigned int
           ]
-          and
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(352): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+c:\users\cedarbishop\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(353): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
           [
               T=float
           ]
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(156): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-          with
-          [
-              T=unsigned int
-          ]
-c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\leveleditor\app.cpp(163): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-          with
-          [
-              T=unsigned int
-          ]
-  LevelEditor.vcxproj -> C:\Users\cbishop5\Documents\GitHub\MDU118LevelEditorRepo\MDU118\x64\Debug\LevelEditor.exe
