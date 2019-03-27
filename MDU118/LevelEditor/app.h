@@ -61,10 +61,10 @@ class App
 	SoundBuffer collisionBuffer;
 	Sound collisionSound;
 
-	/*SoundBuffer gameOverBuffer;
+	SoundBuffer gameOverBuffer;
 	Sound gameOverSound;
 
-	SoundBuffer BGMBuffer;
+	/*SoundBuffer BGMBuffer;
 	Sound BGMSound;*/
 
 	//

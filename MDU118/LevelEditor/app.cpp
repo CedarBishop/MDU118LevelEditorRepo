@@ -188,11 +188,11 @@ void App::InitializeText()
 
 void App::InitializeSound()
 {
-	collisionBuffer.loadFromFile("collision.wav");
+	collisionBuffer.loadFromFile("Sound/collision.wav");
 	collisionSound.setBuffer(collisionBuffer);
-	/*gameOverBuffer.loadFromFile("Sound/gameOver.wav");
+	gameOverBuffer.loadFromFile("Sound/gameOver.wav");
 	gameOverSound.setBuffer(gameOverBuffer);
-	BGMBuffer.loadFromFile("backGroundMusic.mp3");
+	/*BGMBuffer.loadFromFile("backGroundMusic.mp3");
 	BGMSound.setBuffer(BGMBuffer);*/
 }
 
@@ -222,6 +222,7 @@ void App::CircleMovement()
 	{
 		/*ball.setPosition(ball.getPosition().x, window.getSize().y - radius);		
 		speed.y *= -1;*/
+		gameOverSound.play();
 		ResetGame();
 	}
 
