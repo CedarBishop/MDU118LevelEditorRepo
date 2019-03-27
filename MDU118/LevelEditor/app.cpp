@@ -19,6 +19,7 @@ App::~App()
 bool App::Init()
 {	
 	srand(time(NULL));
+	hasStarted = false;
 	InitializeCircles();	
 	InitializePaddle();
 	InitializeBricks();
@@ -38,7 +39,8 @@ void App::Update()
 	
 	CircleMovement();
 	PaddleMovement();
-	PaddleCollision();	
+	PaddleCollision();
+	BrickCollision();
 }
 
 void App::Draw()
@@ -49,6 +51,16 @@ void App::Draw()
 	// Sprite Drawing Starts here 
 
 	window.draw(backgroundSprite);
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	{
+		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		{
+			if (hasStarted == false)
+			{
+				window.draw(brickShadows[i][j]);
+			}
+		}
+	}
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
@@ -77,10 +89,16 @@ void App::HandleEvents()
 	Vector2i localMousePosition = Mouse::getPosition(window);
 	if (Mouse::isButtonPressed(Mouse::Left))
 	{
-		if (paddle.getGlobalBounds().contains(Vector2f(localMousePosition)))
+		for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 		{
-			paddle.setFillColor(Color::Red);
-		}
+			for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+			{
+				if (bricks[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+				{
+					collided[i][j] = !collided[i][j];
+				}
+			}
+		}		
 	}
 }
 
@@ -99,7 +117,7 @@ void App::Run()
 
 void App::InitializeCircles()
 {
-	radius = window.getSize().x * 0.02f;
+	radius = window.getSize().x * 0.01f;
 	ballTexture.loadFromFile("Images/TennisBall.png");	
 
 	ball.setRadius(radius);
@@ -108,8 +126,7 @@ void App::InitializeCircles()
 	ball.setTexture(&ballTexture);		
 
 	sign = 2 * (rand() % 2) - 1;
-	sign2 = 2 * (rand() % 2) - 1;
-	speed = Vector2f(sign * (rand() % 201 + 300), sign2 * (rand() % 201 + 300));
+	speed = Vector2f(sign * (rand() % 201 + 300),-(rand() % 201 + 300));
 	
 	//ballSprite.setTexture(ballTexture);
 }
@@ -127,27 +144,42 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
-	sizeOfBricks = Vector2f(window.getSize().x / NUM_OF_BRICKS_ROWS, (window.getSize().y / 2) / NUM_OF_BRICK_COLUMNS);
-	
+	sizeOfBricks = Vector2f(window.getSize().x / (NUM_OF_BRICKS_ROWS * 2), (window.getSize().y / 2) / (NUM_OF_BRICK_COLUMNS * 2));
+	brickTexture.loadFromFile("Images/PaddleTexture.jpg");
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{
 	
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			bricks[i][j].setSize(sizeOfBricks);		
 
-			bricks[i][j].setPosition((float)(window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j, (float)((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);		
+			bricks[i][j].setSize(sizeOfBricks);	
+			bricks[i][j].setPosition((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j,((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);		
 			bricks[i][j].setOutlineThickness(5);
+			bricks[i][j].setTexture(&brickTexture);
 			bricks[i][j].setOutlineColor(Color::Black);
-			bricks[i][j].setFillColor(Color::Blue);
-			collided[i][j] = false;
+			//bricks[i][j].setFillColor(Color::Blue);
+
+			brickShadows[i][j].setSize(sizeOfBricks);
+			brickShadows[i][j].setPosition((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j, ((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i);
+			brickShadows[i][j].setOutlineThickness(5);
+			brickShadows[i][j].setOutlineColor(Color::Black);
+			brickShadows[i][j].setFillColor(Color::Transparent);
+			collided[i][j] = true;
 		}
 	}
 }
 
 void App::CircleMovement()
-{		
-	ball.move(speed * deltaTime);
+{	
+	if (Keyboard::isKeyPressed(Keyboard::Space))
+	{
+		hasStarted = true;
+	}
+	if (hasStarted)
+	{
+		ball.move(speed * deltaTime);
+	}
+	
 	// Border Collision Right
 	if (ball.getPosition().x > (window.getSize().x - radius))
 	{
@@ -175,8 +207,6 @@ void App::CircleMovement()
 		ball.setPosition(ball.getPosition().x, radius);		
 		speed.y *= -1;
 	}	
-
-	BrickCollision();
 }
 
 void App::PaddleMovement()
@@ -236,9 +266,9 @@ void App::BrickCollision()
 {
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; i++)
+		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			if (ball.getGlobalBounds().intersects(bricks[i][j].getGlobalBounds()))
+			if (ball.getGlobalBounds().intersects(bricks[i][j].getGlobalBounds()) && collided[i][j] == false)
 			{
 				//left
 				if (ball.getPosition().x < bricks[i][j].getPosition().x)
@@ -266,6 +296,7 @@ void App::BrickCollision()
 				}
 				collided[i][j] = true;
 			}
+			
 		}
 	}
 	
