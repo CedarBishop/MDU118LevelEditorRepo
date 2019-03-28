@@ -54,7 +54,7 @@ class App
 
 	Text instructionsText;
 	Font instructionsFont;
-
+	Text buttonText;
 	//
 
 	// SFX
@@ -64,10 +64,19 @@ class App
 	SoundBuffer gameOverBuffer;
 	Sound gameOverSound;
 
-	/*SoundBuffer BGMBuffer;
-	Sound BGMSound;*/
+	SoundBuffer gameWinBuffer;
+	Sound gameWinSound;
+
+	Music BGMusic;
 
 	//
+
+	// Button
+	RectangleShape button;
+	Vector2f buttonSize;	
+		
+	//
+
 	// Methods
 
 public:
@@ -91,6 +100,7 @@ private:
 	void ResetGame();
 	void InitializeText();
 	void InitializeSound();
+	void InitializeButton();
 	//
 };
 

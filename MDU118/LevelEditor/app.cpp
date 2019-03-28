@@ -15,7 +15,7 @@ App::~App()
 }
 
 
-// Initialise memeber variables here
+// Initialise member variables here
 bool App::Init()
 {	
 	srand(time(NULL));
@@ -25,6 +25,7 @@ bool App::Init()
 	InitializeBricks();
 	InitializeText();
 	InitializeSound();
+	InitializeButton();
 	backgroundTexture.loadFromFile("Images/Brick.png");
 	backgroundSprite.setTexture(backgroundTexture);
 	backgroundSprite.setScale(7, 6);	
@@ -38,16 +39,13 @@ bool App::Init()
 void App::Update()
 {
 	deltaTime = clock.restart().asSeconds();
-	if (Keyboard::isKeyPressed(Keyboard::Space))
-	{
-		hasStarted = true;
-	}
 	CircleMovement();
 	PaddleMovement();
 	PaddleCollision();
 	BrickCollision();
 }
 
+// Rendering
 void App::Draw()
 {
 	window.clear();
@@ -79,6 +77,8 @@ void App::Draw()
 	if (hasStarted == false)
 	{
 		window.draw(instructionsText);
+		window.draw(button);
+		window.draw(buttonText);
 	}
 
 	window.draw(ball);
@@ -108,8 +108,12 @@ void App::HandleEvents()
 					collided[i][j] = !collided[i][j];
 				}
 			}
-		}		
-	}
+		}	
+		if (button.getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			hasStarted = true;
+		}
+	}	
 }
 
 void App::Run()
@@ -131,14 +135,12 @@ void App::InitializeCircles()
 	ballTexture.loadFromFile("Images/TennisBall.png");	
 
 	ball.setRadius(radius);
-	ball.setPosition(Vector2f(window.getSize().x / 2, window.getSize().y / 1.5f));
+	ball.setPosition(Vector2f(window.getSize().x / 2, window.getSize().y / 1.22f));
 	ball.setOrigin(Vector2f(radius, radius));
 	ball.setTexture(&ballTexture);		
 
 	sign = 2 * (rand() % 2) - 1;
 	speed = Vector2f(sign * (rand() % 201 + 300),-(rand() % 201 + 300));
-	
-	//ballSprite.setTexture(ballTexture);
 }
 
 void App::InitializePaddle()
@@ -156,7 +158,7 @@ void App::InitializePaddle()
 void App::InitializeBricks()
 {
 	sizeOfBricks = Vector2f(window.getSize().x / (NUM_OF_BRICKS_ROWS * 2), (window.getSize().y / 2) / (NUM_OF_BRICK_COLUMNS * 2));
-	brickTexture.loadFromFile("Images/PaddleTexture.jpg");
+	brickTexture.loadFromFile("Images/BlockTexture.png");
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{	
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
@@ -181,9 +183,13 @@ void App::InitializeText()
 {
 	instructionsFont.loadFromFile("Fonts/Natural Marker.ttf");
 	instructionsText.setFont(instructionsFont);
-	instructionsText.setPosition(window.getSize().x /4, window.getSize().y / 2);
-	instructionsText.setString("Click Empty Blocks To Create Bricks\nPress Space to Play!!!");
+	instructionsText.setPosition(window.getSize().x /3.5f, window.getSize().y / 2);
+	instructionsText.setString("Click Empty Blocks To Create Bricks");
 	instructionsText.setCharacterSize(40);
+	buttonText.setFont(instructionsFont);
+	buttonText.setPosition(window.getSize().x / 2.1f, window.getSize().y / 1.48f);
+	buttonText.setString("Play");
+	buttonText.setCharacterSize(40);
 }
 
 void App::InitializeSound()
@@ -192,15 +198,28 @@ void App::InitializeSound()
 	collisionSound.setBuffer(collisionBuffer);
 	gameOverBuffer.loadFromFile("Sound/gameOver.wav");
 	gameOverSound.setBuffer(gameOverBuffer);
-	/*BGMBuffer.loadFromFile("backGroundMusic.mp3");
-	BGMSound.setBuffer(BGMBuffer);*/
+	gameWinBuffer.loadFromFile("Sound/gameWin.wav");
+	gameWinSound.setBuffer(gameWinBuffer);
+	BGMusic.openFromFile("Sound/backGroundMusic.wav");
+	BGMusic.play();
+	BGMusic.setLoop(true);
+}
+
+void App::InitializeButton()
+{
+	buttonSize = Vector2f(window.getSize().x / 8, window.getSize().y / 16);
+	button.setPosition(window.getSize().x / 2 - (buttonSize.x / 2), window.getSize().y / 1.5f);
+	button.setSize(buttonSize);
+	button.setOutlineThickness(5);
+	button.setOutlineColor(Color::Black);
+	button.setFillColor(Color::Red);
 }
 
 void App::CircleMovement()
 {	
 	if (hasStarted)
 	{
-		ball.move(speed * deltaTime);
+		ball.move(speed * deltaTime);		
 	}
 	
 	// Border Collision Right
@@ -208,6 +227,7 @@ void App::CircleMovement()
 	{
 		ball.setPosition(window.getSize().x - radius, ball.getPosition().y);		
 		speed.x *= -1;
+		collisionSound.play();
 	}
 
 	// Border Collision Left
@@ -215,6 +235,7 @@ void App::CircleMovement()
 	{
 		ball.setPosition(radius, ball.getPosition().y);		
 		speed.x *= -1;
+		collisionSound.play();
 	}
 
 	//Border Collision Bottom
@@ -231,6 +252,7 @@ void App::CircleMovement()
 	{
 		ball.setPosition(ball.getPosition().x, radius);		
 		speed.y *= -1;
+		collisionSound.play();
 	}	
 }
 
@@ -343,6 +365,7 @@ void App::TestGameWin()
 
 	if (hasStarted && sumOfBools == (NUM_OF_BRICKS_ROWS * NUM_OF_BRICK_COLUMNS))
 	{
+		gameWinSound.play();
 		ResetGame();
 	}
 }
@@ -350,7 +373,7 @@ void App::TestGameWin()
 void App::ResetGame()
 {
 	hasStarted = false;
-	ball.setPosition(window.getSize().x / 2, window.getSize().y / 1.5f);
+	ball.setPosition(window.getSize().x / 2, window.getSize().y / 1.22f);
 	speed = Vector2f(sign * (rand() % 201 + 300), -(rand() % 201 + 300));
 	paddle.setPosition(paddleStartingPosition);
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
