@@ -157,6 +157,7 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
+	image.loadFromFile("Images/GreyX.png");
 	sizeOfBricks = Vector2f(window.getSize().x / (NUM_OF_BRICKS_ROWS * 2), (window.getSize().y / 2) / (NUM_OF_BRICK_COLUMNS * 2));
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
@@ -168,7 +169,7 @@ void App::InitializeBricks()
 			bricks[i][j].setOutlineThickness(5);
 			bricks[i][j].setTexture(&brickTexture);
 			bricks[i][j].setOutlineColor(Color::Black);
-			
+			color[i][j] = image.getPixel();
 			brickShadows[i][j].setSize(sizeOfBricks);
 			brickShadows[i][j].setPosition(((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2), (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
 			brickShadows[i][j].setOutlineThickness(5);

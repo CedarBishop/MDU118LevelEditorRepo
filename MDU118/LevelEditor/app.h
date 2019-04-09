@@ -77,6 +77,10 @@ class App
 		
 	//
 
+	// Image Analyser
+	Image image;
+	Color color[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
+
 	// Methods
 
 public:
