@@ -1,0 +1,3 @@
+﻿  Source.cpp
+c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\dynamicmemory\source.cpp(7): warning C4101: 'n': unreferenced local variable
+  DynamicMemory.vcxproj -> C:\Users\cbishop5\Documents\GitHub\MDU118LevelEditorRepo\MDU118\x64\Debug\DynamicMemory.exe

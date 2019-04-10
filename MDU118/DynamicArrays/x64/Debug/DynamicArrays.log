@@ -1,0 +1,3 @@
+﻿  Source.cpp
+c:\users\cbishop5\documents\github\mdu118leveleditorrepo\mdu118\dynamicarrays\source.cpp(7): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  DynamicArrays.vcxproj -> C:\Users\cbishop5\Documents\GitHub\MDU118LevelEditorRepo\MDU118\x64\Debug\DynamicArrays.exe

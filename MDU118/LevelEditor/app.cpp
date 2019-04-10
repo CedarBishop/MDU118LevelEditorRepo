@@ -157,25 +157,30 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
-	image.loadFromFile("Images/GreyX.png");
+	image.loadFromFile("Images/paddleTexture.jpg");
 	sizeOfBricks = Vector2f(window.getSize().x / (NUM_OF_BRICKS_ROWS * 2), (window.getSize().y / 2) / (NUM_OF_BRICK_COLUMNS * 2));
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{	
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
+			color[i][j] = image.getPixel((image.getSize().x / NUM_OF_BRICK_COLUMNS) * j + 1, ((image.getSize().y / NUM_OF_BRICKS_ROWS) * i + 1));
+			
 			bricks[i][j].setSize(sizeOfBricks);	
 			bricks[i][j].setPosition(((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x /2),(((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));		
 			bricks[i][j].setOutlineThickness(5);
-			bricks[i][j].setTexture(&brickTexture);
+			//bricks[i][j].setTexture(&brickTexture);
+			bricks[i][j].setFillColor(color[i][j]);
 			bricks[i][j].setOutlineColor(Color::Black);
-			color[i][j] = image.getPixel();
+			
 			brickShadows[i][j].setSize(sizeOfBricks);
 			brickShadows[i][j].setPosition(((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2), (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
 			brickShadows[i][j].setOutlineThickness(5);
 			brickShadows[i][j].setOutlineColor(Color::Black);
 			brickShadows[i][j].setFillColor(Color::Transparent);
-			collided[i][j] = true;
+
+			collided[i][j] = (color[i][j].r > 150) ? false : true;
+			
 		}
 	}
 }
