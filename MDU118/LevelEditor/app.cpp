@@ -11,7 +11,13 @@ App::App(char const* Title, int screenWidth, int screenHeight, int screenBPP)
 
 App::~App()
 {
-
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	{
+		delete[] brickPtrs[i];
+		delete[] brickShadowPtrs[i];
+	}
+	delete[] brickPtrs;
+	delete[] brickShadowPtrs;
 }
 
 
@@ -20,16 +26,14 @@ bool App::Init()
 {	
 	srand(time(NULL));
 	hasStarted = false;
+	InitializeBackGround();
 	InitializeCircles();	
 	InitializePaddle();
 	InitializeBricks();
 	InitializeText();
 	InitializeSound();
 	InitializeButton();
-	backgroundTexture.loadFromFile("Images/Brick.png");
-	backgroundSprite.setTexture(backgroundTexture);
-	backgroundSprite.setScale(7, 6);	
-	
+
 	return true;
 }
 
@@ -60,7 +64,8 @@ void App::Draw()
 		{
 			if (hasStarted == false)
 			{
-				window.draw(brickShadows[i][j]);
+				//window.draw(brickShadows[i][j]);
+				window.draw(brickShadowPtrs[i][j]);
 			}
 		}
 	}
@@ -70,7 +75,8 @@ void App::Draw()
 		{
 			if (collided[i][j] == false)
 			{
-				window.draw(bricks[i][j]);
+				//window.draw(bricks[i][j]);
+				window.draw(brickPtrs[i][j]);
 			}			
 		}
 	}
@@ -103,7 +109,7 @@ void App::HandleEvents()
 		{
 			for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 			{
-				if (bricks[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+				if (brickPtrs[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 				{
 					collided[i][j] = !collided[i][j];
 				}
@@ -157,8 +163,15 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
-	image.loadFromFile("Images/paddleTexture.jpg");
-	sizeOfBricks = Vector2f(window.getSize().x / (NUM_OF_BRICKS_ROWS * 2), (window.getSize().y / 2) / (NUM_OF_BRICK_COLUMNS * 2));
+	brickPtrs = new RectangleShape *[NUM_OF_BRICKS_ROWS];
+	brickShadowPtrs = new RectangleShape *[NUM_OF_BRICKS_ROWS];
+	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	{
+		brickPtrs[i] = new RectangleShape[NUM_OF_BRICK_COLUMNS];
+		brickShadowPtrs[i] = new RectangleShape[NUM_OF_BRICK_COLUMNS];
+	}
+	image.loadFromFile("Images/Goku.png");
+	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (NUM_OF_BRICKS_ROWS * 2), (backgroundSprite.getGlobalBounds().height / 2) / (NUM_OF_BRICK_COLUMNS * 2));
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
 	{	
@@ -166,21 +179,33 @@ void App::InitializeBricks()
 		{
 			color[i][j] = image.getPixel((image.getSize().x / NUM_OF_BRICK_COLUMNS) * j + 1, ((image.getSize().y / NUM_OF_BRICKS_ROWS) * i + 1));
 			
-			bricks[i][j].setSize(sizeOfBricks);	
-			bricks[i][j].setPosition(((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x /2),(((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));		
-			bricks[i][j].setOutlineThickness(5);
-			//bricks[i][j].setTexture(&brickTexture);
-			bricks[i][j].setFillColor(color[i][j]);
-			bricks[i][j].setOutlineColor(Color::Black);
-			
-			brickShadows[i][j].setSize(sizeOfBricks);
-			brickShadows[i][j].setPosition(((window.getSize().x / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2), (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
-			brickShadows[i][j].setOutlineThickness(5);
-			brickShadows[i][j].setOutlineColor(Color::Black);
-			brickShadows[i][j].setFillColor(Color::Transparent);
+			brickPtrs[i][j].setSize(sizeOfBricks);
+			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
+			brickPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
+			brickPtrs[i][j].setFillColor(color[i][j]);
+			brickPtrs[i][j].setOutlineColor(Color::Black);
 
-			collided[i][j] = (color[i][j].r > 150) ? false : true;
+			brickShadowPtrs[i][j].setSize(sizeOfBricks);
+			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
+			brickShadowPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
+			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
+			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
+
+			//bricks[i][j].setSize(sizeOfBricks);	
+			//bricks[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x /2) + sideBarRatio,(((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));		
+			//bricks[i][j].setOutlineThickness(window.getSize().y / 200);
+			////bricks[i][j].setTexture(&brickTexture);
+			//bricks[i][j].setFillColor(color[i][j]);
+			//bricks[i][j].setOutlineColor(Color::Black);
 			
+			/*brickShadows[i][j].setSize(sizeOfBricks);
+			brickShadows[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
+			brickShadows[i][j].setOutlineThickness(window.getSize().y / 200);
+			brickShadows[i][j].setOutlineColor(Color::Black);
+			brickShadows[i][j].setFillColor(Color::Transparent);*/
+
+			collided[i][j] = (color[i][j].a > 10) ? false : true;
+			startingBrickStatus[i][j] = collided[i][j];
 		}
 	}
 }
@@ -191,11 +216,11 @@ void App::InitializeText()
 	instructionsText.setFont(instructionsFont);
 	instructionsText.setPosition(window.getSize().x /3.5f, window.getSize().y / 2);
 	instructionsText.setString("Click Empty Blocks To Create Bricks");
-	instructionsText.setCharacterSize(40);
+	instructionsText.setCharacterSize(window.getSize().y / 25);
 	buttonText.setFont(instructionsFont);
 	buttonText.setPosition(window.getSize().x / 2.1f, window.getSize().y / 1.48f);
 	buttonText.setString("Play");
-	buttonText.setCharacterSize(40);
+	buttonText.setCharacterSize(window.getSize().y / 25);
 }
 
 void App::InitializeSound()
@@ -216,9 +241,18 @@ void App::InitializeButton()
 	buttonSize = Vector2f(window.getSize().x / 8, window.getSize().y / 16);
 	button.setPosition(window.getSize().x / 2 - (buttonSize.x / 2), window.getSize().y / 1.5f);
 	button.setSize(buttonSize);
-	button.setOutlineThickness(5);
+	button.setOutlineThickness(window.getSize().y / 200);
 	button.setOutlineColor(Color::Black);
 	button.setFillColor(Color::Red);
+}
+
+void App::InitializeBackGround()
+{
+	sideBarRatio = window.getSize().x * 0.15f;
+	backgroundTexture.loadFromFile("Images/Brick.png");
+	backgroundSprite.setTexture(backgroundTexture);
+	backgroundSprite.setScale(((float)window.getSize().x / backgroundTexture.getSize().x) * 0.7f, (float)window.getSize().y / backgroundTexture.getSize().y);
+	backgroundSprite.setPosition(sideBarRatio,0);
 }
 
 void App::CircleMovement()
@@ -229,17 +263,17 @@ void App::CircleMovement()
 	}
 	
 	// Border Collision Right
-	if (ball.getPosition().x > (window.getSize().x - radius))
+	if (ball.getPosition().x > ((backgroundSprite.getGlobalBounds().width + sideBarRatio) - radius))
 	{
-		ball.setPosition(window.getSize().x - radius, ball.getPosition().y);		
+		ball.setPosition((backgroundSprite.getGlobalBounds().width + sideBarRatio) - radius, ball.getPosition().y);		
 		speed.x *= -1;
 		collisionSound.play();
 	}
 
 	// Border Collision Left
-	if (ball.getPosition().x < radius)
+	if (ball.getPosition().x < radius + sideBarRatio)
 	{
-		ball.setPosition(radius, ball.getPosition().y);		
+		ball.setPosition(radius + sideBarRatio, ball.getPosition().y);		
 		speed.x *= -1;
 		collisionSound.play();
 	}
@@ -274,13 +308,13 @@ void App::PaddleMovement()
 	}
 
 	//Player Border Collision
-	if (paddle.getPosition().x > (window.getSize().x - paddleSize.x)) //Right
+	if (paddle.getPosition().x > ((backgroundSprite.getGlobalBounds().width + sideBarRatio) - paddleSize.x)) //Right
 	{
-		paddle.setPosition(window.getSize().x - paddleSize.x, paddle.getPosition().y);
+		paddle.setPosition(((backgroundSprite.getGlobalBounds().width + sideBarRatio) - paddleSize.x), paddle.getPosition().y);
 	}
-	if (paddle.getPosition().x < 0) // Left
+	if (paddle.getPosition().x < sideBarRatio) // Left
 	{
-		paddle.setPosition(0, paddle.getPosition().y);
+		paddle.setPosition(sideBarRatio, paddle.getPosition().y);
 	}
 }
 
@@ -322,31 +356,31 @@ void App::BrickCollision()
 	{
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			if (ball.getGlobalBounds().intersects(bricks[i][j].getGlobalBounds()) && collided[i][j] == false)
+			if (ball.getGlobalBounds().intersects(brickPtrs[i][j].getGlobalBounds()) && collided[i][j] == false)
 			{
 				//left
-				if (ball.getPosition().x < bricks[i][j].getPosition().x)
+				if (ball.getPosition().x < brickPtrs[i][j].getPosition().x)
 				{
 					speed.x *= -1;
-					ball.setPosition(bricks[i][j].getPosition().x - (radius + 1), ball.getPosition().y);
+					ball.setPosition(brickPtrs[i][j].getPosition().x - (radius + 1), ball.getPosition().y);
 				}
 				//right
-				else if (ball.getPosition().x > bricks[i][j].getPosition().x + sizeOfBricks.x)
+				else if (ball.getPosition().x > brickPtrs[i][j].getPosition().x + sizeOfBricks.x)
 				{
 					speed.x *= -1;
-					ball.setPosition((bricks[i][j].getPosition().x + sizeOfBricks.x) + (radius + 1), ball.getPosition().y);
+					ball.setPosition((brickPtrs[i][j].getPosition().x + sizeOfBricks.x) + (radius + 1), ball.getPosition().y);
 				}
 				//top
-				else if (ball.getPosition().y < bricks[i][j].getPosition().y)
+				else if (ball.getPosition().y < brickPtrs[i][j].getPosition().y)
 				{
 					speed.y *= -1;
-					ball.setPosition(ball.getPosition().x, (bricks[i][j].getPosition().y) - (radius + 1));
+					ball.setPosition(ball.getPosition().x, (brickPtrs[i][j].getPosition().y) - (radius + 1));
 				}
 				//bottom
-				else if (ball.getPosition().y > bricks[i][j].getPosition().y + sizeOfBricks.y)
+				else if (ball.getPosition().y > brickPtrs[i][j].getPosition().y + sizeOfBricks.y)
 				{
 					speed.y *= -1;
-					ball.setPosition(ball.getPosition().x, (bricks[i][j].getPosition().y + sizeOfBricks.y) + (radius + 1));
+					ball.setPosition(ball.getPosition().x, (brickPtrs[i][j].getPosition().y + sizeOfBricks.y) + (radius + 1));
 				}
 				collisionSound.play();
 				collided[i][j] = true;
@@ -386,7 +420,7 @@ void App::ResetGame()
 	{
 		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
 		{
-			collided[i][j] = true;
+			collided[i][j] = startingBrickStatus[i][j];
 		}
 	}
 }

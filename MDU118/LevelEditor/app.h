@@ -3,8 +3,8 @@
 #include "SFML/Audio.hpp"
 using namespace sf;
 
-const int NUM_OF_BRICKS_ROWS = 10;
-const int NUM_OF_BRICK_COLUMNS = 10;
+const int NUM_OF_BRICKS_ROWS = 30;
+const int NUM_OF_BRICK_COLUMNS = 30;
 class App
 {
 	//Game Logic variables
@@ -20,6 +20,7 @@ class App
 
 	Texture backgroundTexture;
 	Sprite backgroundSprite;
+	float sideBarRatio;
 
 	//
 
@@ -48,8 +49,10 @@ class App
 	RectangleShape brickShadows[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Vector2f sizeOfBricks;
 	bool collided[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
+	bool startingBrickStatus[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Texture brickTexture;
-
+	RectangleShape** brickPtrs;
+	RectangleShape** brickShadowPtrs;
 	// Texts
 
 	Text instructionsText;
@@ -105,6 +108,7 @@ private:
 	void InitializeText();
 	void InitializeSound();
 	void InitializeButton();
+	void InitializeBackGround();
 	//
 };
 
