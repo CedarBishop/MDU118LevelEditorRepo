@@ -3,8 +3,12 @@
 #include "SFML/Audio.hpp"
 using namespace sf;
 
-const int NUM_OF_BRICKS_ROWS = 30;
-const int NUM_OF_BRICK_COLUMNS = 30;
+const int GRID_OF_FIVE = 5;
+const int GRID_OF_TEN = 10;
+const int GRID_OF_FIFTEEN = 15;
+const int GRID_OF_TWENTY = 20;
+const int GRID_OF_TWENTYFIVE = 25;
+const int GRID_OF_THIRTY = 30;
 class App
 {
 	//Game Logic variables
@@ -45,14 +49,13 @@ class App
 
 	// Bricks
 
-	RectangleShape bricks[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
-	RectangleShape brickShadows[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Vector2f sizeOfBricks;
-	bool collided[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
-	bool startingBrickStatus[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
 	Texture brickTexture;
 	RectangleShape** brickPtrs;
 	RectangleShape** brickShadowPtrs;
+	bool** collidedPtrs;
+	bool** startingBrickStatusPtrs;
+	int currentGridSize;
 	// Texts
 
 	Text instructionsText;
@@ -82,8 +85,7 @@ class App
 
 	// Image Analyser
 	Image image;
-	Color color[NUM_OF_BRICKS_ROWS][NUM_OF_BRICK_COLUMNS];
-
+	Color** colorPtrs;
 	// Methods
 
 public:
@@ -109,6 +111,7 @@ private:
 	void InitializeSound();
 	void InitializeButton();
 	void InitializeBackGround();
+	void ResizeArrays(const int, int);	
 	//
 };
 

@@ -11,13 +11,19 @@ App::App(char const* Title, int screenWidth, int screenHeight, int screenBPP)
 
 App::~App()
 {
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
 		delete[] brickPtrs[i];
 		delete[] brickShadowPtrs[i];
+		delete[] colorPtrs[i];
+		delete[] collidedPtrs[i];
+		delete[] startingBrickStatusPtrs[i];
 	}
 	delete[] brickPtrs;
 	delete[] brickShadowPtrs;
+	delete[] colorPtrs;
+	delete[] collidedPtrs;
+	delete[] startingBrickStatusPtrs;
 }
 
 
@@ -58,24 +64,22 @@ void App::Draw()
 	// Sprite Drawing Starts here 
 
 	window.draw(backgroundSprite);
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
 			if (hasStarted == false)
 			{
-				//window.draw(brickShadows[i][j]);
 				window.draw(brickShadowPtrs[i][j]);
 			}
 		}
 	}
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
-			if (collided[i][j] == false)
+			if (collidedPtrs[i][j] == false)
 			{
-				//window.draw(bricks[i][j]);
 				window.draw(brickPtrs[i][j]);
 			}			
 		}
@@ -105,13 +109,13 @@ void App::HandleEvents()
 	Vector2i localMousePosition = Mouse::getPosition(window);
 	if (Mouse::isButtonPressed(Mouse::Left))
 	{
-		for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+		for (int i = 0; i < currentGridSize; i++)
 		{
-			for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+			for (int j = 0; j < currentGridSize; j++)
 			{
 				if (brickPtrs[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 				{
-					collided[i][j] = !collided[i][j];
+					collidedPtrs[i][j] = !collidedPtrs[i][j];
 				}
 			}
 		}	
@@ -163,49 +167,43 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
-	brickPtrs = new RectangleShape *[NUM_OF_BRICKS_ROWS];
-	brickShadowPtrs = new RectangleShape *[NUM_OF_BRICKS_ROWS];
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	brickPtrs = new RectangleShape *[GRID_OF_THIRTY];
+	brickShadowPtrs = new RectangleShape *[GRID_OF_THIRTY];
+	colorPtrs = new Color*[GRID_OF_THIRTY];
+	collidedPtrs = new bool*[GRID_OF_THIRTY];
+	startingBrickStatusPtrs = new bool*[GRID_OF_THIRTY];
+	for (int i = 0; i < GRID_OF_THIRTY; i++)
 	{
-		brickPtrs[i] = new RectangleShape[NUM_OF_BRICK_COLUMNS];
-		brickShadowPtrs[i] = new RectangleShape[NUM_OF_BRICK_COLUMNS];
+		brickPtrs[i] = new RectangleShape[GRID_OF_THIRTY];
+		brickShadowPtrs[i] = new RectangleShape[GRID_OF_THIRTY];
+		colorPtrs[i] = new Color[GRID_OF_THIRTY];
+		collidedPtrs[i] = new bool[GRID_OF_THIRTY];
+		startingBrickStatusPtrs[i] = new bool[GRID_OF_THIRTY];
 	}
+	currentGridSize = GRID_OF_THIRTY;
 	image.loadFromFile("Images/Goku.png");
-	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (NUM_OF_BRICKS_ROWS * 2), (backgroundSprite.getGlobalBounds().height / 2) / (NUM_OF_BRICK_COLUMNS * 2));
 	brickTexture.loadFromFile("Images/BlockTexture.png");
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
+	for (int i = 0; i < currentGridSize; i++)
 	{	
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
-			color[i][j] = image.getPixel((image.getSize().x / NUM_OF_BRICK_COLUMNS) * j + 1, ((image.getSize().y / NUM_OF_BRICKS_ROWS) * i + 1));
+			colorPtrs[i][j] = image.getPixel((image.getSize().x / currentGridSize) * j + 1, ((image.getSize().y / currentGridSize) * i + 1));
 			
 			brickPtrs[i][j].setSize(sizeOfBricks);
-			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
+			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
 			brickPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
-			brickPtrs[i][j].setFillColor(color[i][j]);
+			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
 			brickPtrs[i][j].setOutlineColor(Color::Black);
 
 			brickShadowPtrs[i][j].setSize(sizeOfBricks);
-			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
+			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
 			brickShadowPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
 			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
 			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
-			//bricks[i][j].setSize(sizeOfBricks);	
-			//bricks[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x /2) + sideBarRatio,(((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));		
-			//bricks[i][j].setOutlineThickness(window.getSize().y / 200);
-			////bricks[i][j].setTexture(&brickTexture);
-			//bricks[i][j].setFillColor(color[i][j]);
-			//bricks[i][j].setOutlineColor(Color::Black);
-			
-			/*brickShadows[i][j].setSize(sizeOfBricks);
-			brickShadows[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / NUM_OF_BRICK_COLUMNS) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / NUM_OF_BRICKS_ROWS) * i) + (sizeOfBricks.y / 2));
-			brickShadows[i][j].setOutlineThickness(window.getSize().y / 200);
-			brickShadows[i][j].setOutlineColor(Color::Black);
-			brickShadows[i][j].setFillColor(Color::Transparent);*/
-
-			collided[i][j] = (color[i][j].a > 10) ? false : true;
-			startingBrickStatus[i][j] = collided[i][j];
+			collidedPtrs[i][j] = (colorPtrs[i][j].a > 10) ? false : true;
+			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}
 }
@@ -352,11 +350,11 @@ void App::PaddleCollision()
 
 void App::BrickCollision()
 {
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
-			if (ball.getGlobalBounds().intersects(brickPtrs[i][j].getGlobalBounds()) && collided[i][j] == false)
+			if (ball.getGlobalBounds().intersects(brickPtrs[i][j].getGlobalBounds()) && collidedPtrs[i][j] == false)
 			{
 				//left
 				if (ball.getPosition().x < brickPtrs[i][j].getPosition().x)
@@ -383,7 +381,7 @@ void App::BrickCollision()
 					ball.setPosition(ball.getPosition().x, (brickPtrs[i][j].getPosition().y + sizeOfBricks.y) + (radius + 1));
 				}
 				collisionSound.play();
-				collided[i][j] = true;
+				collidedPtrs[i][j] = true;
 				TestGameWin();
 			}			
 		}
@@ -392,18 +390,18 @@ void App::BrickCollision()
 void App::TestGameWin()
 {
 	int sumOfBools = 0;
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
-			if (collided[i][j])
+			if (collidedPtrs[i][j])
 			{
 				sumOfBools++;
 			}
 		}
 	}
 
-	if (hasStarted && sumOfBools == (NUM_OF_BRICKS_ROWS * NUM_OF_BRICK_COLUMNS))
+	if (hasStarted && sumOfBools == (currentGridSize * currentGridSize))
 	{
 		gameWinSound.play();
 		ResetGame();
@@ -416,11 +414,65 @@ void App::ResetGame()
 	ball.setPosition(window.getSize().x / 2, window.getSize().y / 1.22f);
 	speed = Vector2f(sign * (rand() % 201 + 300), -(rand() % 201 + 300));
 	paddle.setPosition(paddleStartingPosition);
-	for (int i = 0; i < NUM_OF_BRICKS_ROWS; i++)
+	for (int i = 0; i < currentGridSize; i++)
 	{
-		for (int j = 0; j < NUM_OF_BRICK_COLUMNS; j++)
+		for (int j = 0; j < currentGridSize; j++)
 		{
-			collided[i][j] = startingBrickStatus[i][j];
+			collidedPtrs[i][j] = startingBrickStatusPtrs[i][j];
+		}
+	}
+}
+
+void App::ResizeArrays(const int gridSize, int currentGridSize)
+{
+	if (currentGridSize == gridSize)
+	{
+		return;
+	}
+	for (int i = 0; i < currentGridSize; i++)
+	{
+		delete[] brickPtrs[i];
+		delete[] brickShadowPtrs[i];
+		delete[] colorPtrs[i];
+		delete[] collidedPtrs[i];
+		delete[] startingBrickStatusPtrs[i];
+	}
+	delete[] brickPtrs;
+	delete[] brickShadowPtrs;
+	delete[] colorPtrs;
+	delete[] collidedPtrs;
+	delete[] startingBrickStatusPtrs;
+
+	brickPtrs = new RectangleShape *[gridSize];
+	brickShadowPtrs = new RectangleShape *[gridSize];
+	for (int i = 0; i < gridSize; i++)
+	{
+		brickPtrs[i] = new RectangleShape[gridSize];
+		brickShadowPtrs[i] = new RectangleShape[gridSize];
+	}
+	currentGridSize = gridSize;
+	brickTexture.loadFromFile("Images/BlockTexture.png");
+	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
+	for (int i = 0; i < currentGridSize; i++)
+	{
+		for (int j = 0; j < currentGridSize; j++)
+		{
+			colorPtrs[i][j] = image.getPixel((image.getSize().x / currentGridSize) * j + 1, ((image.getSize().y / currentGridSize) * i + 1));
+
+			brickPtrs[i][j].setSize(sizeOfBricks);
+			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
+			brickPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
+			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
+			brickPtrs[i][j].setOutlineColor(Color::Black);
+
+			brickShadowPtrs[i][j].setSize(sizeOfBricks);
+			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
+			brickShadowPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
+			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
+			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
+
+			collidedPtrs[i][j] = (colorPtrs[i][j].a > 10) ? false : true;
+			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}
 }
