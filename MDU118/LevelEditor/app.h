@@ -3,12 +3,15 @@
 #include "SFML/Audio.hpp"
 using namespace sf;
 
-const int GRID_OF_FIVE = 5;
-const int GRID_OF_TEN = 10;
-const int GRID_OF_FIFTEEN = 15;
-const int GRID_OF_TWENTY = 20;
-const int GRID_OF_TWENTYFIVE = 25;
-const int GRID_OF_THIRTY = 30;
+//
+//const int GRID_OF_FIVE = 5;
+//const int GRID_OF_TEN = 10;
+//const int GRID_OF_FIFTEEN = 15;
+//const int GRID_OF_TWENTY = 20;
+//const int GRID_OF_TWENTYFIVE = 25;
+//const int GRID_OF_THIRTY = 30;
+
+
 class App
 {
 	//Game Logic variables
@@ -56,6 +59,7 @@ class App
 	bool** collidedPtrs;
 	bool** startingBrickStatusPtrs;
 	int currentGridSize;
+	int GRID_NUMBERS[6];
 	// Texts
 
 	Text instructionsText;
@@ -78,7 +82,7 @@ class App
 	//
 
 	// Button
-	RectangleShape button;
+	RectangleShape button[7];
 	Vector2f buttonSize;	
 		
 	//
@@ -111,7 +115,7 @@ private:
 	void InitializeSound();
 	void InitializeButton();
 	void InitializeBackGround();
-	void ResizeArrays(const int, int);	
+	void ResizeArrays(int);	
 	//
 };
 

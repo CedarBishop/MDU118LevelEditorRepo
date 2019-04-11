@@ -87,7 +87,10 @@ void App::Draw()
 	if (hasStarted == false)
 	{
 		window.draw(instructionsText);
-		window.draw(button);
+		for (int i = 0; i < 7; i++)
+		{
+			window.draw(button[i]);
+		}		
 		window.draw(buttonText);
 	}
 
@@ -119,10 +122,17 @@ void App::HandleEvents()
 				}
 			}
 		}	
-		if (button.getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		if (button[0].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
 			hasStarted = true;
 		}
+		for (int i = 1; i < 7; i++)
+		{
+			if (button[i].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+			{
+				ResizeArrays(5 * i);
+			}
+		}		
 	}	
 }
 
@@ -167,20 +177,20 @@ void App::InitializePaddle()
 
 void App::InitializeBricks()
 {
-	brickPtrs = new RectangleShape *[GRID_OF_THIRTY];
-	brickShadowPtrs = new RectangleShape *[GRID_OF_THIRTY];
-	colorPtrs = new Color*[GRID_OF_THIRTY];
-	collidedPtrs = new bool*[GRID_OF_THIRTY];
-	startingBrickStatusPtrs = new bool*[GRID_OF_THIRTY];
-	for (int i = 0; i < GRID_OF_THIRTY; i++)
+	brickPtrs = new RectangleShape *[30];
+	brickShadowPtrs = new RectangleShape *[30];
+	colorPtrs = new Color*[30];
+	collidedPtrs = new bool*[30];
+	startingBrickStatusPtrs = new bool*[30];
+	for (int i = 0; i < 30; i++)
 	{
-		brickPtrs[i] = new RectangleShape[GRID_OF_THIRTY];
-		brickShadowPtrs[i] = new RectangleShape[GRID_OF_THIRTY];
-		colorPtrs[i] = new Color[GRID_OF_THIRTY];
-		collidedPtrs[i] = new bool[GRID_OF_THIRTY];
-		startingBrickStatusPtrs[i] = new bool[GRID_OF_THIRTY];
+		brickPtrs[i] = new RectangleShape[30];
+		brickShadowPtrs[i] = new RectangleShape[30];
+		colorPtrs[i] = new Color[30];
+		collidedPtrs[i] = new bool[30];
+		startingBrickStatusPtrs[i] = new bool[30];
 	}
-	currentGridSize = GRID_OF_THIRTY;
+	currentGridSize = 30;
 	image.loadFromFile("Images/Goku.png");
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
@@ -236,12 +246,21 @@ void App::InitializeSound()
 
 void App::InitializeButton()
 {
-	buttonSize = Vector2f(window.getSize().x / 8, window.getSize().y / 16);
-	button.setPosition(window.getSize().x / 2 - (buttonSize.x / 2), window.getSize().y / 1.5f);
-	button.setSize(buttonSize);
-	button.setOutlineThickness(window.getSize().y / 200);
-	button.setOutlineColor(Color::Black);
-	button.setFillColor(Color::Red);
+	buttonSize = Vector2f(window.getSize().x / 10, window.getSize().y / 20);
+	button[0].setPosition(window.getSize().x / 2 - (buttonSize.x / 2), window.getSize().y / 1.5f);
+	for (int i = 0; i < 7; i++)
+	{
+		button[i].setSize(buttonSize);
+		button[i].setOutlineThickness(window.getSize().y / 200);
+		button[i].setOutlineColor(Color::Black);
+		button[i].setFillColor(Color::Red);
+	}
+	for (int i = 1; i < 7; i++)
+	{
+		button[i].setPosition(window.getSize().x * 0.875, window.getSize().y * (0.1f * (float)i));
+	}
+
+	
 }
 
 void App::InitializeBackGround()
@@ -423,7 +442,7 @@ void App::ResetGame()
 	}
 }
 
-void App::ResizeArrays(const int gridSize, int currentGridSize)
+void App::ResizeArrays(int gridSize)
 {
 	if (currentGridSize == gridSize)
 	{
@@ -445,10 +464,16 @@ void App::ResizeArrays(const int gridSize, int currentGridSize)
 
 	brickPtrs = new RectangleShape *[gridSize];
 	brickShadowPtrs = new RectangleShape *[gridSize];
+	colorPtrs = new Color*[gridSize];
+	collidedPtrs = new bool*[gridSize];
+	startingBrickStatusPtrs = new bool*[gridSize];
 	for (int i = 0; i < gridSize; i++)
 	{
 		brickPtrs[i] = new RectangleShape[gridSize];
 		brickShadowPtrs[i] = new RectangleShape[gridSize];
+		colorPtrs[i] = new Color[gridSize];
+		collidedPtrs[i] = new bool[gridSize];
+		startingBrickStatusPtrs[i] = new bool[gridSize];
 	}
 	currentGridSize = gridSize;
 	brickTexture.loadFromFile("Images/BlockTexture.png");
