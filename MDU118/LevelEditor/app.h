@@ -3,15 +3,6 @@
 #include "SFML/Audio.hpp"
 using namespace sf;
 
-//
-//const int GRID_OF_FIVE = 5;
-//const int GRID_OF_TEN = 10;
-//const int GRID_OF_FIFTEEN = 15;
-//const int GRID_OF_TWENTY = 20;
-//const int GRID_OF_TWENTYFIVE = 25;
-//const int GRID_OF_THIRTY = 30;
-
-
 class App
 {
 	//Game Logic variables
@@ -63,8 +54,8 @@ class App
 	// Texts
 
 	Text instructionsText;
-	Font instructionsFont;
-	Text buttonText;
+	Font font;
+	Text buttonText[14];
 	//
 
 	// SFX
@@ -82,14 +73,20 @@ class App
 	//
 
 	// Button
-	RectangleShape button[7];
+	RectangleShape button[14];
 	Vector2f buttonSize;	
 		
 	//
 
 	// Image Analyser
-	Image image;
+
+	/*enum ImageType { image1, image2, image3 };
+	ImageType imageTypeInstance;*/
+	int currentImageIndex;
+	Image image[3];
+	
 	Color** colorPtrs;
+	Color currentColor;
 	// Methods
 
 public:
@@ -116,6 +113,8 @@ private:
 	void InitializeButton();
 	void InitializeBackGround();
 	void ResizeArrays(int);	
+	void changeDominateColor(int,int,int,int);
+	void changeImage(int);
 	//
 };
 

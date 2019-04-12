@@ -87,11 +87,11 @@ void App::Draw()
 	if (hasStarted == false)
 	{
 		window.draw(instructionsText);
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i < 14; i++)
 		{
 			window.draw(button[i]);
-		}		
-		window.draw(buttonText);
+			window.draw(buttonText[i]);
+		}				
 	}
 
 	window.draw(ball);
@@ -125,6 +125,7 @@ void App::HandleEvents()
 		if (button[0].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
 			hasStarted = true;
+			TestGameWin();
 		}
 		for (int i = 1; i < 7; i++)
 		{
@@ -191,14 +192,18 @@ void App::InitializeBricks()
 		startingBrickStatusPtrs[i] = new bool[30];
 	}
 	currentGridSize = 30;
-	image.loadFromFile("Images/Goku.png");
+	currentColor = Color(0,0,0,1);
+	image[0].loadFromFile("Images/Goku.png");
+	image[1].loadFromFile("Images/Jesus.jpg");
+	image[2].loadFromFile("Images/Santa.jpg");
+	currentImageIndex = 0;
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
 	for (int i = 0; i < currentGridSize; i++)
 	{	
 		for (int j = 0; j < currentGridSize; j++)
 		{
-			colorPtrs[i][j] = image.getPixel((image.getSize().x / currentGridSize) * j + 1, ((image.getSize().y / currentGridSize) * i + 1));
+			colorPtrs[i][j] = image[currentImageIndex].getPixel((image[currentImageIndex].getSize().x / currentGridSize) * j + 1, ((image[currentImageIndex].getSize().y / currentGridSize) * i + 1));
 			
 			brickPtrs[i][j].setSize(sizeOfBricks);
 			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
@@ -212,23 +217,50 @@ void App::InitializeBricks()
 			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
 			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
-			collidedPtrs[i][j] = (colorPtrs[i][j].a > 10) ? false : true;
-			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
+			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g  && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
+			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];			
 		}
 	}
 }
 
 void App::InitializeText()
 {
-	instructionsFont.loadFromFile("Fonts/Natural Marker.ttf");
-	instructionsText.setFont(instructionsFont);
-	instructionsText.setPosition(window.getSize().x /3.5f, window.getSize().y / 2);
+	font.loadFromFile("Fonts/Natural Marker.ttf");
+	instructionsText.setFont(font);
+	instructionsText.setPosition(window.getSize().x /3.5f, window.getSize().y / 1.8f);
 	instructionsText.setString("Click Empty Blocks To Create Bricks");
 	instructionsText.setCharacterSize(window.getSize().y / 25);
-	buttonText.setFont(instructionsFont);
-	buttonText.setPosition(window.getSize().x / 2.1f, window.getSize().y / 1.48f);
-	buttonText.setString("Play");
-	buttonText.setCharacterSize(window.getSize().y / 25);
+	for (int i = 0; i < 14; i++)
+	{
+		buttonText[i].setFont(font);
+		buttonText[i].setCharacterSize(window.getSize().y / 25);
+	}
+	
+	buttonText[0].setPosition(window.getSize().x * 0.03f, window.getSize().y * 0.1f);
+	buttonText[0].setString("Play");
+	buttonText[1].setString("5 x 5");
+	buttonText[2].setString("10 x 10");
+	buttonText[3].setString("15 x 15");
+	buttonText[4].setString("20 x 20");
+	buttonText[5].setString("25 x 25");
+	buttonText[6].setString("30 x 30");
+	buttonText[7].setString("Red");
+	buttonText[8].setString("Green");
+	buttonText[9].setString("Blue");
+	buttonText[10].setString("Alpha");
+	buttonText[11].setString("Image 1");
+	buttonText[12].setString("Image 2");
+	buttonText[13].setString("Image 3");
+	for (int i = 1; i < 7; i++)
+	{
+		buttonText[i].setPosition(window.getSize().x * 0.875f, window.getSize().y * (0.1f * i));	
+	}
+	float j = 2;
+	for (int i = 7; i < 14; i++)
+	{
+		buttonText[i].setPosition(window.getSize().x * 0.025f, window.getSize().y * (0.1f * j));
+		j++;
+	}
 }
 
 void App::InitializeSound()
@@ -247,8 +279,8 @@ void App::InitializeSound()
 void App::InitializeButton()
 {
 	buttonSize = Vector2f(window.getSize().x / 10, window.getSize().y / 20);
-	button[0].setPosition(window.getSize().x / 2 - (buttonSize.x / 2), window.getSize().y / 1.5f);
-	for (int i = 0; i < 7; i++)
+	button[0].setPosition(window.getSize().x * 0.025f, window.getSize().y * 0.1f);
+	for (int i = 0; i < 14; i++)
 	{
 		button[i].setSize(buttonSize);
 		button[i].setOutlineThickness(window.getSize().y / 200);
@@ -258,9 +290,13 @@ void App::InitializeButton()
 	for (int i = 1; i < 7; i++)
 	{
 		button[i].setPosition(window.getSize().x * 0.875, window.getSize().y * (0.1f * (float)i));
+	}	
+	float j = 2;
+	for (int i = 7; i < 14; i++)
+	{
+		button[i].setPosition(window.getSize().x * 0.025, window.getSize().y * (0.1f * j));
+		j++;
 	}
-
-	
 }
 
 void App::InitializeBackGround()
@@ -482,7 +518,7 @@ void App::ResizeArrays(int gridSize)
 	{
 		for (int j = 0; j < currentGridSize; j++)
 		{
-			colorPtrs[i][j] = image.getPixel((image.getSize().x / currentGridSize) * j + 1, ((image.getSize().y / currentGridSize) * i + 1));
+			colorPtrs[i][j] = image[currentImageIndex].getPixel((image[currentImageIndex].getSize().x / currentGridSize) * j + 1, ((image[currentImageIndex].getSize().y / currentGridSize) * i + 1));
 
 			brickPtrs[i][j].setSize(sizeOfBricks);
 			brickPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
@@ -496,8 +532,44 @@ void App::ResizeArrays(int gridSize)
 			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
 			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
-			collidedPtrs[i][j] = (colorPtrs[i][j].a > 10) ? false : true;
+			collidedPtrs[i][j] = (colorPtrs[i][j].r > 100) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
+		}
+	}
+}
+
+void App::changeDominateColor(int red, int green, int blue, int alpha)
+{
+	if (currentColor.r == red)
+	{
+		return;
+	}
+	currentColor = Color(red,green,blue,alpha);
+	for (int i = 0; i < currentGridSize; i++)
+	{
+		for (int j = 0; j < currentGridSize; j++)
+		{
+			collidedPtrs[i][j] = (colorPtrs[i][j].r > currentColor.r && colorPtrs[i][j].g > currentColor.g  && colorPtrs[i][j].b > currentColor.b && colorPtrs[i][j].a > currentColor.a) ? false : true;
+			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
+		}
+	}
+}
+
+void App::changeImage(int newImageIndex)
+{
+	if (currentImageIndex == newImageIndex)
+	{
+		return;
+	}
+	currentImageIndex = newImageIndex;
+	for (int i = 0; i < currentGridSize; i++)
+	{
+		for (int j = 0; j < currentGridSize; j++)
+		{
+			colorPtrs[i][j] = image[currentImageIndex].getPixel((image[currentImageIndex].getSize().x / currentGridSize) * j + 1, ((image[currentImageIndex].getSize().y / currentGridSize) * i + 1));
+			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
+			collidedPtrs[i][j] = (colorPtrs[i][j].r > currentColor.r && colorPtrs[i][j].g > currentColor.g  && colorPtrs[i][j].b > currentColor.b && colorPtrs[i][j].a > currentColor.a) ? false : true;
+			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];		
 		}
 	}
 }
