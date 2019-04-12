@@ -134,6 +134,35 @@ void App::HandleEvents()
 				ResizeArrays(5 * i);
 			}
 		}		
+		if (button[7].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(100,0,0,100);
+		}
+		if (button[8].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 100, 0, 100);
+		}
+		if (button[9].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 0, 100, 100);
+		}
+		if (button[10].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 0, 0, 100);
+		}
+		if (button[11].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(0);
+		}
+		if (button[12].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(1);
+		}
+		if (button[13].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(2);
+		}
+
 	}	
 }
 
@@ -173,7 +202,6 @@ void App::InitializePaddle()
 	paddleTexture.loadFromFile("Images/PaddleTexture.jpg");
 	paddle.setTexture(&paddleTexture);
 	paddleVelocity = 1000.0f;
-
 }
 
 void App::InitializeBricks()
@@ -194,8 +222,8 @@ void App::InitializeBricks()
 	currentGridSize = 30;
 	currentColor = Color(0,0,0,1);
 	image[0].loadFromFile("Images/Goku.png");
-	image[1].loadFromFile("Images/Jesus.jpg");
-	image[2].loadFromFile("Images/Santa.jpg");
+	image[1].loadFromFile("Images/Jesus.png");
+	image[2].loadFromFile("Images/MasterChief.png");
 	currentImageIndex = 0;
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
@@ -532,7 +560,7 @@ void App::ResizeArrays(int gridSize)
 			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
 			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
-			collidedPtrs[i][j] = (colorPtrs[i][j].r > 100) ? false : true;
+			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}
@@ -540,7 +568,7 @@ void App::ResizeArrays(int gridSize)
 
 void App::changeDominateColor(int red, int green, int blue, int alpha)
 {
-	if (currentColor.r == red)
+	if (currentColor.r == red && currentColor.g == green && currentColor.b == blue && currentColor.a == alpha)
 	{
 		return;
 	}
@@ -549,7 +577,7 @@ void App::changeDominateColor(int red, int green, int blue, int alpha)
 	{
 		for (int j = 0; j < currentGridSize; j++)
 		{
-			collidedPtrs[i][j] = (colorPtrs[i][j].r > currentColor.r && colorPtrs[i][j].g > currentColor.g  && colorPtrs[i][j].b > currentColor.b && colorPtrs[i][j].a > currentColor.a) ? false : true;
+			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g  && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}

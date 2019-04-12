@@ -79,9 +79,6 @@ class App
 	//
 
 	// Image Analyser
-
-	/*enum ImageType { image1, image2, image3 };
-	ImageType imageTypeInstance;*/
 	int currentImageIndex;
 	Image image[3];
 	
