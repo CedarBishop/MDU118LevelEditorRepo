@@ -222,8 +222,8 @@ void App::InitializeBricks()
 	currentGridSize = 30;
 	currentColor = Color(0,0,0,1);
 	image[0].loadFromFile("Images/Goku.png");
-	image[1].loadFromFile("Images/Jesus.png");
-	image[2].loadFromFile("Images/MasterChief.png");
+	image[1].loadFromFile("Images/Forest.jpg");
+	image[2].loadFromFile("Images/Sunset.jpg");
 	currentImageIndex = 0;
 	brickTexture.loadFromFile("Images/BlockTexture.png");
 	sizeOfBricks = Vector2f(backgroundSprite.getGlobalBounds().width / (currentGridSize * 2), (backgroundSprite.getGlobalBounds().height / 2) / (currentGridSize * 2));
