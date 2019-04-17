@@ -12,6 +12,7 @@ class App
 	RenderWindow window;
 	float deltaTime;
 	bool hasStarted;
+	bool acceptInput;
 	//	
 
 	//Background variables

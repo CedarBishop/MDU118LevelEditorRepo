@@ -31,6 +31,7 @@ bool App::Init()
 {	
 	srand(time(NULL));
 	hasStarted = false;
+	acceptInput = true;
 	InitializeBackGround();
 	InitializeCircles();	
 	InitializePaddle();
@@ -106,9 +107,15 @@ void App::HandleEvents()
 		window.close();
 	}
 
-	Vector2i localMousePosition = Mouse::getPosition(window);
-	if (Mouse::isButtonPressed(Mouse::Left))
+	if (event.type == Event::MouseButtonReleased)
 	{
+		acceptInput = true;
+	}
+	
+	Vector2i localMousePosition = Mouse::getPosition(window);
+	if (Mouse::isButtonPressed(Mouse::Left) && acceptInput)
+	{
+		acceptInput = false;
 		for (int i = 0; i < currentGridSize; i++)
 		{
 			for (int j = 0; j < currentGridSize; j++)
