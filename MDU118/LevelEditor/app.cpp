@@ -11,16 +11,15 @@ App::App(char const* Title, int screenWidth, int screenHeight, int screenBPP)
 
 App::~App()
 {
+	// Deleting all 2D dynamic arrays
 	for (int i = 0; i < currentGridSize; i++)
 	{
 		delete[] brickPtrs[i];
-		delete[] brickShadowPtrs[i];
 		delete[] colorPtrs[i];
 		delete[] collidedPtrs[i];
 		delete[] startingBrickStatusPtrs[i];
 	}
 	delete[] brickPtrs;
-	delete[] brickShadowPtrs;
 	delete[] colorPtrs;
 	delete[] collidedPtrs;
 	delete[] startingBrickStatusPtrs;
@@ -39,6 +38,7 @@ bool App::Init()
 	InitializeText();
 	InitializeSound();
 	InitializeButton();
+	InitialiseDisplayImages();
 
 	return true;
 }
@@ -64,14 +64,11 @@ void App::Draw()
 	// Sprite Drawing Starts here 
 
 	window.draw(backgroundSprite);
-	for (int i = 0; i < currentGridSize; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < currentGridSize; j++)
+		if (currentImageIndex == i && hasStarted == false)
 		{
-			if (hasStarted == false)
-			{
-				window.draw(brickShadowPtrs[i][j]);
-			}
+			window.draw(displaySprite[i]);
 		}
 	}
 	for (int i = 0; i < currentGridSize; i++)
@@ -162,7 +159,6 @@ void App::HandleEvents()
 		{
 			changeImage(2);
 		}
-
 	}	
 }
 
@@ -207,14 +203,12 @@ void App::InitializePaddle()
 void App::InitializeBricks()
 {
 	brickPtrs = new RectangleShape *[30];
-	brickShadowPtrs = new RectangleShape *[30];
 	colorPtrs = new Color*[30];
 	collidedPtrs = new bool*[30];
 	startingBrickStatusPtrs = new bool*[30];
 	for (int i = 0; i < 30; i++)
 	{
 		brickPtrs[i] = new RectangleShape[30];
-		brickShadowPtrs[i] = new RectangleShape[30];
 		colorPtrs[i] = new Color[30];
 		collidedPtrs[i] = new bool[30];
 		startingBrickStatusPtrs[i] = new bool[30];
@@ -238,12 +232,6 @@ void App::InitializeBricks()
 			brickPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
 			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
 			brickPtrs[i][j].setOutlineColor(Color::Black);
-
-			brickShadowPtrs[i][j].setSize(sizeOfBricks);
-			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
-			brickShadowPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
-			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
-			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
 			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g  && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];			
@@ -293,8 +281,12 @@ void App::InitializeText()
 
 void App::InitializeSound()
 {
-	collisionBuffer.loadFromFile("Sound/collision.wav");
-	collisionSound.setBuffer(collisionBuffer);
+	brickCollisionBuffer.loadFromFile("Sound/collision.wav");
+	brickCollisionSound.setBuffer(brickCollisionBuffer);
+	paddleCollisionBuffer.loadFromFile("Sound/paddleCollision.wav");
+	paddleCollisionSound.setBuffer(paddleCollisionBuffer);
+	borderCollisionBuffer.loadFromFile("Sound/borderCollision.wav");
+	borderCollisionSound.setBuffer(borderCollisionBuffer);
 	gameOverBuffer.loadFromFile("Sound/gameOver.wav");
 	gameOverSound.setBuffer(gameOverBuffer);
 	gameWinBuffer.loadFromFile("Sound/gameWin.wav");
@@ -348,7 +340,7 @@ void App::CircleMovement()
 	{
 		ball.setPosition((backgroundSprite.getGlobalBounds().width + sideBarRatio) - radius, ball.getPosition().y);		
 		speed.x *= -1;
-		collisionSound.play();
+		borderCollisionSound.play();
 	}
 
 	// Border Collision Left
@@ -356,14 +348,12 @@ void App::CircleMovement()
 	{
 		ball.setPosition(radius + sideBarRatio, ball.getPosition().y);		
 		speed.x *= -1;
-		collisionSound.play();
+		borderCollisionSound.play();
 	}
 
 	//Border Collision Bottom
 	if (ball.getPosition().y > (window.getSize().y - radius))
 	{
-		/*ball.setPosition(ball.getPosition().x, window.getSize().y - radius);		
-		speed.y *= -1;*/
 		gameOverSound.play();
 		ResetGame();
 	}
@@ -373,7 +363,7 @@ void App::CircleMovement()
 	{
 		ball.setPosition(ball.getPosition().x, radius);		
 		speed.y *= -1;
-		collisionSound.play();
+		borderCollisionSound.play();
 	}	
 }
 
@@ -427,7 +417,7 @@ void App::PaddleCollision()
 			speed.y *= -1;
 			ball.setPosition(ball.getPosition().x, (paddle.getPosition().y + paddleSize.y) + (radius + 1));
 		}
-		collisionSound.play();
+		paddleCollisionSound.play();
 	}
 }
 
@@ -463,7 +453,7 @@ void App::BrickCollision()
 					speed.y *= -1;
 					ball.setPosition(ball.getPosition().x, (brickPtrs[i][j].getPosition().y + sizeOfBricks.y) + (radius + 1));
 				}
-				collisionSound.play();
+				brickCollisionSound.play();
 				collidedPtrs[i][j] = true;
 				TestGameWin();
 			}			
@@ -515,26 +505,22 @@ void App::ResizeArrays(int gridSize)
 	for (int i = 0; i < currentGridSize; i++)
 	{
 		delete[] brickPtrs[i];
-		delete[] brickShadowPtrs[i];
 		delete[] colorPtrs[i];
 		delete[] collidedPtrs[i];
 		delete[] startingBrickStatusPtrs[i];
 	}
 	delete[] brickPtrs;
-	delete[] brickShadowPtrs;
 	delete[] colorPtrs;
 	delete[] collidedPtrs;
 	delete[] startingBrickStatusPtrs;
 
 	brickPtrs = new RectangleShape *[gridSize];
-	brickShadowPtrs = new RectangleShape *[gridSize];
 	colorPtrs = new Color*[gridSize];
 	collidedPtrs = new bool*[gridSize];
 	startingBrickStatusPtrs = new bool*[gridSize];
 	for (int i = 0; i < gridSize; i++)
 	{
 		brickPtrs[i] = new RectangleShape[gridSize];
-		brickShadowPtrs[i] = new RectangleShape[gridSize];
 		colorPtrs[i] = new Color[gridSize];
 		collidedPtrs[i] = new bool[gridSize];
 		startingBrickStatusPtrs[i] = new bool[gridSize];
@@ -553,12 +539,6 @@ void App::ResizeArrays(int gridSize)
 			brickPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
 			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
 			brickPtrs[i][j].setOutlineColor(Color::Black);
-
-			brickShadowPtrs[i][j].setSize(sizeOfBricks);
-			brickShadowPtrs[i][j].setPosition(((backgroundSprite.getGlobalBounds().width / currentGridSize) *  j) + (sizeOfBricks.x / 2) + sideBarRatio, (((window.getSize().y / 2) / currentGridSize) * i) + (sizeOfBricks.y / 2));
-			brickShadowPtrs[i][j].setOutlineThickness(window.getSize().y / 200);
-			brickShadowPtrs[i][j].setOutlineColor(Color::Black);
-			brickShadowPtrs[i][j].setFillColor(Color::Transparent);
 
 			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
@@ -599,5 +579,16 @@ void App::changeImage(int newImageIndex)
 			collidedPtrs[i][j] = (colorPtrs[i][j].r > currentColor.r && colorPtrs[i][j].g > currentColor.g  && colorPtrs[i][j].b > currentColor.b && colorPtrs[i][j].a > currentColor.a) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];		
 		}
+	}
+}
+
+void App::InitialiseDisplayImages()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		displayTexture[i].loadFromImage(image[i]);
+		displaySprite[i].setTexture(displayTexture[i]);
+		displaySprite[i].setScale(((float)window.getSize().x / image[i].getSize().x) * 0.7f, ((float)window.getSize().y / image[i].getSize().y) * 0.5f);
+		displaySprite[i].setPosition(sideBarRatio,0);
 	}
 }

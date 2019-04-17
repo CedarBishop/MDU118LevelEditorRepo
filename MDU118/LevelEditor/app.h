@@ -46,7 +46,6 @@ class App
 	Vector2f sizeOfBricks;
 	Texture brickTexture;
 	RectangleShape** brickPtrs;
-	RectangleShape** brickShadowPtrs;
 	bool** collidedPtrs;
 	bool** startingBrickStatusPtrs;
 	int currentGridSize;
@@ -59,15 +58,17 @@ class App
 	//
 
 	// SFX
-	SoundBuffer collisionBuffer;
-	Sound collisionSound;
 
+	SoundBuffer brickCollisionBuffer;
+	Sound brickCollisionSound;
+	SoundBuffer paddleCollisionBuffer;
+	Sound paddleCollisionSound;	
+	SoundBuffer borderCollisionBuffer;
+	Sound borderCollisionSound;
 	SoundBuffer gameOverBuffer;
 	Sound gameOverSound;
-
 	SoundBuffer gameWinBuffer;
 	Sound gameWinSound;
-
 	Music BGMusic;
 
 	//
@@ -81,7 +82,8 @@ class App
 	// Image Analyser
 	int currentImageIndex;
 	Image image[3];
-	
+	Texture displayTexture[3];
+	Sprite displaySprite[3];
 	Color** colorPtrs;
 	Color currentColor;
 	// Methods
@@ -112,6 +114,7 @@ private:
 	void ResizeArrays(int);	
 	void changeDominateColor(int,int,int,int);
 	void changeImage(int);
+	void InitialiseDisplayImages();
 	//
 };
 
