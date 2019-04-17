@@ -55,7 +55,7 @@ class App
 
 	Text instructionsText;
 	Font font;
-	Text buttonText[14];
+	Text buttonText[16];
 	//
 
 	// SFX
@@ -75,7 +75,7 @@ class App
 	//
 
 	// Button
-	RectangleShape button[14];
+	RectangleShape button[16];
 	Vector2f buttonSize;	
 		
 	//
@@ -87,6 +87,8 @@ class App
 	Sprite displaySprite[3];
 	Color** colorPtrs;
 	Color currentColor;
+	Color randomColor;
+	bool isDisplaying;
 	// Methods
 
 public:
@@ -116,6 +118,7 @@ private:
 	void changeDominateColor(int,int,int,int);
 	void changeImage(int);
 	void InitialiseDisplayImages();
+	void RandomRGB();
 	//
 };
 

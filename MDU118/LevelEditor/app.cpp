@@ -67,7 +67,7 @@ void App::Draw()
 	window.draw(backgroundSprite);
 	for (int i = 0; i < 3; i++)
 	{
-		if (currentImageIndex == i && hasStarted == false)
+		if (currentImageIndex == i && hasStarted == false && isDisplaying)
 		{
 			window.draw(displaySprite[i]);
 		}
@@ -85,7 +85,7 @@ void App::Draw()
 	if (hasStarted == false)
 	{
 		window.draw(instructionsText);
-		for (int i = 0; i < 14; i++)
+		for (int i = 0; i < 16; i++)
 		{
 			window.draw(button[i]);
 			window.draw(buttonText[i]);
@@ -165,6 +165,15 @@ void App::HandleEvents()
 		if (button[13].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
 			changeImage(2);
+		}
+		if (button[14].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			isDisplaying = !isDisplaying;
+		}
+		if (button[15].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			RandomRGB();
+			changeDominateColor(randomColor.r,randomColor.g, randomColor.b, randomColor.a);
 		}
 	}	
 }
@@ -253,7 +262,7 @@ void App::InitializeText()
 	instructionsText.setPosition(window.getSize().x /3.5f, window.getSize().y / 1.8f);
 	instructionsText.setString("Click Empty Blocks To Create Bricks");
 	instructionsText.setCharacterSize(window.getSize().y / 25);
-	for (int i = 0; i < 14; i++)
+	for (int i = 0; i < 16; i++)
 	{
 		buttonText[i].setFont(font);
 		buttonText[i].setCharacterSize(window.getSize().y / 25);
@@ -274,6 +283,8 @@ void App::InitializeText()
 	buttonText[11].setString("Image 1");
 	buttonText[12].setString("Image 2");
 	buttonText[13].setString("Image 3");
+	buttonText[14].setString("Display");
+	buttonText[15].setString("Random RGB");
 	for (int i = 1; i < 7; i++)
 	{
 		buttonText[i].setPosition(window.getSize().x * 0.875f, window.getSize().y * (0.1f * i));	
@@ -284,6 +295,8 @@ void App::InitializeText()
 		buttonText[i].setPosition(window.getSize().x * 0.025f, window.getSize().y * (0.1f * j));
 		j++;
 	}
+	buttonText[14].setPosition(window.getSize().x * 0.875f, window.getSize().y * 0.7f);
+	buttonText[15].setPosition(window.getSize().x * 0.875f, window.getSize().y * 0.8f);
 }
 
 void App::InitializeSound()
@@ -307,7 +320,7 @@ void App::InitializeButton()
 {
 	buttonSize = Vector2f(window.getSize().x / 10, window.getSize().y / 20);
 	button[0].setPosition(window.getSize().x * 0.025f, window.getSize().y * 0.1f);
-	for (int i = 0; i < 14; i++)
+	for (int i = 0; i < 16; i++)
 	{
 		button[i].setSize(buttonSize);
 		button[i].setOutlineThickness(window.getSize().y / 200);
@@ -324,6 +337,8 @@ void App::InitializeButton()
 		button[i].setPosition(window.getSize().x * 0.025, window.getSize().y * (0.1f * j));
 		j++;
 	}
+	button[14].setPosition(window.getSize().x * 0.875f,window.getSize().y * 0.7f);
+	button[15].setPosition(window.getSize().x * 0.875f, window.getSize().y * 0.8f);
 }
 
 void App::InitializeBackGround()
@@ -598,4 +613,13 @@ void App::InitialiseDisplayImages()
 		displaySprite[i].setScale(((float)window.getSize().x / image[i].getSize().x) * 0.7f, ((float)window.getSize().y / image[i].getSize().y) * 0.5f);
 		displaySprite[i].setPosition(sideBarRatio,0);
 	}
+	isDisplaying = true;
+}
+
+void App::RandomRGB()
+{	
+	randomColor.r = rand() % 256;
+	randomColor.g = rand() % 256;
+	randomColor.b = rand() % 256;
+	randomColor.a = 100;
 }
