@@ -267,7 +267,7 @@ void App::InitializeText()
 		buttonText[i].setFont(font);
 		buttonText[i].setCharacterSize(window.getSize().y / 25);
 	}
-	
+	buttonText[0].setFillColor(Color::Red);
 	buttonText[0].setPosition(window.getSize().x * 0.03f, window.getSize().y * 0.1f);
 	buttonText[0].setString("Play");
 	buttonText[1].setString("5 x 5");
@@ -284,7 +284,7 @@ void App::InitializeText()
 	buttonText[12].setString("Image 2");
 	buttonText[13].setString("Image 3");
 	buttonText[14].setString("Display");
-	buttonText[15].setString("Random RGB");
+	buttonText[15].setString("Random");
 	for (int i = 1; i < 7; i++)
 	{
 		buttonText[i].setPosition(window.getSize().x * 0.875f, window.getSize().y * (0.1f * i));	
@@ -337,6 +337,7 @@ void App::InitializeButton()
 		button[i].setPosition(window.getSize().x * 0.025, window.getSize().y * (0.1f * j));
 		j++;
 	}
+	button[0].setFillColor(Color::White);
 	button[14].setPosition(window.getSize().x * 0.875f,window.getSize().y * 0.7f);
 	button[15].setPosition(window.getSize().x * 0.875f, window.getSize().y * 0.8f);
 }
@@ -618,8 +619,8 @@ void App::InitialiseDisplayImages()
 
 void App::RandomRGB()
 {	
-	randomColor.r = rand() % 256;
-	randomColor.g = rand() % 256;
-	randomColor.b = rand() % 256;
+	randomColor.r = rand() % 151;
+	randomColor.g = rand() % 151;
+	randomColor.b = rand() % 151;
 	randomColor.a = 100;
 }
