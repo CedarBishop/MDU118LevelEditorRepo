@@ -25,7 +25,6 @@ App::~App()
 	delete[] startingBrickStatusPtrs;
 }
 
-
 // Initialise member variables here
 bool App::Init()
 {	
@@ -43,8 +42,6 @@ bool App::Init()
 
 	return true;
 }
-
-
 
 // Add game logic here
 void App::Update()
@@ -111,71 +108,7 @@ void App::HandleEvents()
 	{
 		acceptInput = true;
 	}
-	
-	Vector2i localMousePosition = Mouse::getPosition(window);
-	if (Mouse::isButtonPressed(Mouse::Left) && acceptInput)
-	{
-		acceptInput = false;
-		for (int i = 0; i < currentGridSize; i++)
-		{
-			for (int j = 0; j < currentGridSize; j++)
-			{
-				if (brickPtrs[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-				{
-					collidedPtrs[i][j] = !collidedPtrs[i][j];
-				}
-			}
-		}	
-		if (button[0].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			hasStarted = true;
-			TestGameWin();
-		}
-		for (int i = 1; i < 7; i++)
-		{
-			if (button[i].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-			{
-				ResizeArrays(5 * i);
-			}
-		}		
-		if (button[7].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeDominateColor(100,0,0,100);
-		}
-		if (button[8].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeDominateColor(0, 100, 0, 100);
-		}
-		if (button[9].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeDominateColor(0, 0, 100, 100);
-		}
-		if (button[10].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeDominateColor(0, 0, 0, 100);
-		}
-		if (button[11].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeImage(0);
-		}
-		if (button[12].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeImage(1);
-		}
-		if (button[13].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			changeImage(2);
-		}
-		if (button[14].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			isDisplaying = !isDisplaying;
-		}
-		if (button[15].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
-		{
-			RandomRGB();
-			changeDominateColor(randomColor.r,randomColor.g, randomColor.b, randomColor.a);
-		}
-	}	
+	ButtonHandling();
 }
 
 void App::Run()
@@ -216,6 +149,8 @@ void App::InitializePaddle()
 	paddleVelocity = 1000.0f;
 }
 
+
+// creates the bricks and puts its pixel coirdinate in retrospect to the image pixel coirdinate and puts that pixel colour in the brick
 void App::InitializeBricks()
 {
 	brickPtrs = new RectangleShape *[30];
@@ -230,7 +165,8 @@ void App::InitializeBricks()
 		startingBrickStatusPtrs[i] = new bool[30];
 	}
 	currentGridSize = 30;
-	currentColor = Color(0,0,0,1);
+	minColorValue = Color(0,0,0,1);
+	maxColorValue = Color(255,255,255,255);
 	image[0].loadFromFile("Images/Goku.png");
 	image[1].loadFromFile("Images/Forest.jpg");
 	image[2].loadFromFile("Images/Sunset.jpg");
@@ -249,7 +185,7 @@ void App::InitializeBricks()
 			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
 			brickPtrs[i][j].setOutlineColor(Color::Black);
 
-			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g  && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
+			collidedPtrs[i][j] = ((colorPtrs[i][j].r >= minColorValue.r && colorPtrs[i][j].r <= maxColorValue.r) && (colorPtrs[i][j].g >= minColorValue.g && colorPtrs[i][j].g <= maxColorValue.g) && (colorPtrs[i][j].b >= minColorValue.b && colorPtrs[i][j].b <= maxColorValue.b) && (colorPtrs[i][j].a >= minColorValue.a && colorPtrs[i][j].b <= maxColorValue.b)) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];			
 		}
 	}
@@ -351,6 +287,7 @@ void App::InitializeBackGround()
 	backgroundSprite.setPosition(sideBarRatio,0);
 }
 
+// handles the speed of the bal and its collisions with the borders
 void App::CircleMovement()
 {	
 	if (hasStarted)
@@ -390,6 +327,8 @@ void App::CircleMovement()
 	}	
 }
 
+
+//Stops the paddle from going out of bounds
 void App::PaddleMovement()
 {
 	if (Keyboard::isKeyPressed(Keyboard::Left) && hasStarted)
@@ -412,6 +351,7 @@ void App::PaddleMovement()
 	}
 }
 
+// Determines if the ball hits the padlle
 void App::PaddleCollision()
 {
 	if (ball.getGlobalBounds().intersects(paddle.getGlobalBounds()))
@@ -444,6 +384,7 @@ void App::PaddleCollision()
 	}
 }
 
+// detects collision of the bricks then turns them off after they are hit
 void App::BrickCollision()
 {
 	for (int i = 0; i < currentGridSize; i++)
@@ -483,6 +424,8 @@ void App::BrickCollision()
 		}
 	}	
 }
+
+//Checks if all bricks are off if so reset game
 void App::TestGameWin()
 {
 	int sumOfBools = 0;
@@ -504,6 +447,7 @@ void App::TestGameWin()
 	}
 }
 
+//Resets the game after winning or losing
 void App::ResetGame()
 {
 	hasStarted = false;
@@ -519,6 +463,7 @@ void App::ResetGame()
 	}
 }
 
+// deleltes and recreates all the 2d dynamic arrays to the new grid size then reecreates bricks to the new sizes and positions.
 void App::ResizeArrays(int gridSize)
 {
 	if (currentGridSize == gridSize)
@@ -563,29 +508,34 @@ void App::ResizeArrays(int gridSize)
 			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
 			brickPtrs[i][j].setOutlineColor(Color::Black);
 
-			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
+			collidedPtrs[i][j] = ((colorPtrs[i][j].r >= minColorValue.r && colorPtrs[i][j].r <= maxColorValue.r) && (colorPtrs[i][j].g >= minColorValue.g && colorPtrs[i][j].g <= maxColorValue.g) && (colorPtrs[i][j].b >= minColorValue.b && colorPtrs[i][j].b <= maxColorValue.b) && (colorPtrs[i][j].a >= minColorValue.a && colorPtrs[i][j].b <= maxColorValue.b)) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}
 }
 
-void App::changeDominateColor(int red, int green, int blue, int alpha)
+
+//Changes the dominate colour of the bricks to be turned on
+void App::changeDominateColor(int minRed, int minGreen, int minBlue, int minAlpha, int maxRed, int maxGreen, int maxBlue, int maxAlpha)
 {
-	if (currentColor.r == red && currentColor.g == green && currentColor.b == blue && currentColor.a == alpha)
+	if (minColorValue.r == minRed && minColorValue.g == minGreen && minColorValue.b == minBlue && minColorValue.a == minAlpha)
 	{
 		return;
 	}
-	currentColor = Color(red,green,blue,alpha);
+	minColorValue = Color(minRed,minGreen,minBlue,minAlpha);
+	maxColorValue = Color(maxRed,maxGreen,maxBlue,maxAlpha);
 	for (int i = 0; i < currentGridSize; i++)
 	{
 		for (int j = 0; j < currentGridSize; j++)
 		{
-			collidedPtrs[i][j] = (colorPtrs[i][j].r >= currentColor.r && colorPtrs[i][j].g >= currentColor.g  && colorPtrs[i][j].b >= currentColor.b && colorPtrs[i][j].a >= currentColor.a) ? false : true;
+			collidedPtrs[i][j] = ((colorPtrs[i][j].r >= minColorValue.r && colorPtrs[i][j].r <= maxColorValue.r) && (colorPtrs[i][j].g >= minColorValue.g && colorPtrs[i][j].g <= maxColorValue.g)  && (colorPtrs[i][j].b >= minColorValue.b && colorPtrs[i][j].b <= maxColorValue.b) && (colorPtrs[i][j].a >= minColorValue.a && colorPtrs[i][j].b <= maxColorValue.b)) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];
 		}
 	}
 }
 
+
+//Changes between the 3 set images
 void App::changeImage(int newImageIndex)
 {
 	if (currentImageIndex == newImageIndex)
@@ -599,12 +549,13 @@ void App::changeImage(int newImageIndex)
 		{
 			colorPtrs[i][j] = image[currentImageIndex].getPixel((image[currentImageIndex].getSize().x / currentGridSize) * j + 1, ((image[currentImageIndex].getSize().y / currentGridSize) * i + 1));
 			brickPtrs[i][j].setFillColor(colorPtrs[i][j]);
-			collidedPtrs[i][j] = (colorPtrs[i][j].r > currentColor.r && colorPtrs[i][j].g > currentColor.g  && colorPtrs[i][j].b > currentColor.b && colorPtrs[i][j].a > currentColor.a) ? false : true;
+			collidedPtrs[i][j] = ((colorPtrs[i][j].r >= minColorValue.r && colorPtrs[i][j].r <= maxColorValue.r) && (colorPtrs[i][j].g >= minColorValue.g && colorPtrs[i][j].g <= maxColorValue.g) && (colorPtrs[i][j].b >= minColorValue.b && colorPtrs[i][j].b <= maxColorValue.b) && (colorPtrs[i][j].a >= minColorValue.a && colorPtrs[i][j].b <= maxColorValue.b)) ? false : true;
 			startingBrickStatusPtrs[i][j] = collidedPtrs[i][j];		
 		}
 	}
 }
 
+//Creates a sprite of the image s that gets displayed behind the bricks
 void App::InitialiseDisplayImages()
 {
 	for (int i = 0; i < 3; i++)
@@ -617,10 +568,84 @@ void App::InitialiseDisplayImages()
 	isDisplaying = true;
 }
 
+//creates a random minimum and maximum of range of colour bricks to be turned on
 void App::RandomRGB()
 {	
-	randomColor.r = rand() % 151;
-	randomColor.g = rand() % 151;
-	randomColor.b = rand() % 151;
-	randomColor.a = 100;
+	randomMinColor.r = rand() % 128;
+	randomMinColor.g = rand() % 128;
+	randomMinColor.b = rand() % 128;
+	randomMinColor.a = 100;
+	randomMaxColor.r = rand() % 128 + 128;
+	randomMaxColor.g = rand() % 128 + 128;
+	randomMaxColor.b = rand() % 128 + 128;
+	randomMaxColor.a = 100;
+}
+
+//handles all button clicks
+void App::ButtonHandling()
+{
+	Vector2i localMousePosition = Mouse::getPosition(window);
+	if (Mouse::isButtonPressed(Mouse::Left) && acceptInput)
+	{
+		acceptInput = false;
+		for (int i = 0; i < currentGridSize; i++)
+		{
+			for (int j = 0; j < currentGridSize; j++)
+			{
+				if (brickPtrs[i][j].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+				{
+					collidedPtrs[i][j] = !collidedPtrs[i][j];
+				}
+			}
+		}
+		if (button[0].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			hasStarted = true;
+			TestGameWin();
+		}
+		for (int i = 1; i < 7; i++)
+		{
+			if (button[i].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+			{
+				ResizeArrays(5 * i);
+			}
+		}
+		if (button[7].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(100, 0, 0, 100, 255, 100, 100, 100);
+		}
+		if (button[8].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 100, 0, 100, 100, 255, 100, 100);
+		}
+		if (button[9].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 0, 100, 100, 100, 100, 255, 100);
+		}
+		if (button[10].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeDominateColor(0, 0, 0, 100, 100, 100, 255, 100);
+		}
+		if (button[11].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(0);
+		}
+		if (button[12].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(1);
+		}
+		if (button[13].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			changeImage(2);
+		}
+		if (button[14].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			isDisplaying = !isDisplaying;
+		}
+		if (button[15].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
+		{
+			RandomRGB();
+			changeDominateColor(randomMinColor.r, randomMinColor.g, randomMinColor.b, randomMinColor.a, randomMaxColor.r, randomMaxColor.g, randomMaxColor.b, randomMaxColor.a);
+		}
+	}
 }

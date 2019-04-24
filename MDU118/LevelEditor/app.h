@@ -28,7 +28,6 @@ class App
 	float radius;
 	Texture ballTexture;
 	int sign;
-	int sign2;
 	Vector2f speed;
 	//
 
@@ -86,8 +85,10 @@ class App
 	Texture displayTexture[3];
 	Sprite displaySprite[3];
 	Color** colorPtrs;
-	Color currentColor;
-	Color randomColor;
+	Color minColorValue;
+	Color maxColorValue;
+	Color randomMinColor;
+	Color randomMaxColor;
 	bool isDisplaying;
 	// Methods
 
@@ -115,10 +116,11 @@ private:
 	void InitializeButton();
 	void InitializeBackGround();
 	void ResizeArrays(int);	
-	void changeDominateColor(int,int,int,int);
+	void changeDominateColor(int,int,int,int,int,int,int,int);
 	void changeImage(int);
 	void InitialiseDisplayImages();
 	void RandomRGB();
+	void ButtonHandling();
 	//
 };
 
