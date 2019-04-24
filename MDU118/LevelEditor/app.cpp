@@ -578,7 +578,7 @@ void App::RandomRGB()
 	randomMaxColor.r = rand() % 128 + 128;
 	randomMaxColor.g = rand() % 128 + 128;
 	randomMaxColor.b = rand() % 128 + 128;
-	randomMaxColor.a = 100;
+	randomMaxColor.a = 255;
 }
 
 //handles all button clicks
@@ -612,19 +612,19 @@ void App::ButtonHandling()
 		}
 		if (button[7].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
-			changeDominateColor(100, 0, 0, 100, 255, 100, 100, 100);
+			changeDominateColor(100, 0, 0, 100, 255, 150, 150, 255);
 		}
 		if (button[8].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
-			changeDominateColor(0, 100, 0, 100, 100, 255, 100, 100);
+			changeDominateColor(0, 100, 0, 100, 150, 255, 150, 255);
 		}
 		if (button[9].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
-			changeDominateColor(0, 0, 100, 100, 100, 100, 255, 100);
+			changeDominateColor(0, 0, 100, 100, 150, 150, 255, 255);
 		}
 		if (button[10].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
-			changeDominateColor(0, 0, 0, 100, 100, 100, 255, 100);
+			changeDominateColor(0, 0, 0, 100, 255, 255, 255, 255);
 		}
 		if (button[11].getGlobalBounds().contains(Vector2f(localMousePosition)) && hasStarted == false)
 		{
